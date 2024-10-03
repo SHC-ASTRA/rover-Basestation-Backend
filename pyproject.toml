@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "Rover Basestation Release Server"
+version = "0.1.0"
+description = ""
+authors = ["ASTRA"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+Flask = "^3.0.3"
+Flask-SocketIO = "^5.4.1"
+numpy = "^2.1.1"
+opencv-python = "^4.10.0"
+netifaces = "^0.11.0"
+PyYAML = "^6.0.2"
+
+[tool.poetry.dev-dependencies]
+black = "^24.8.0"
+pyarrow = "^17.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

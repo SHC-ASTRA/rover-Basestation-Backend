@@ -1,3 +1,6 @@
+node_modules/
+ros_msgs/install/
+ros_msgs/log/
 .DS_Store
 
 # Byte-compiled / optimized / DLL files
