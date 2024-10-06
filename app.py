@@ -1,14 +1,14 @@
 # ROS
-import rclpy
+import rclpy # type: ignore
 import signal
 import threading
 # Custom ROS class
 from ros_handling import RosNode, ros2_thread
 from ros_handling import CORE_CONTROL, CORE_FEEDBACK, ARM_CONTROL, ARM_FEEDBACK, ARM_COMMAND, BIO_CONTROL, BIO_FEEDBACK, FAERIE_CONTROL, FAERIE_FEEDBACK, AUTO_FEEDBACK
 # Flask
-from flask import Flask, send_from_directory, send_file, request
+from flask import Flask, send_from_directory, send_file, request # type: ignore
 # Flask SocketIO
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO # type: ignore
 # Path handling
 import os
 from pathlib import Path

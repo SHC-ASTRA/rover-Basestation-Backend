@@ -1,20 +1,20 @@
 # Main ROS2 library / bindings
-import rclpy
+import rclpy # type: ignore
 # ROS2 node class
-from rclpy.node import Node
+from rclpy.node import Node # type: ignore
 # ROS2 standard (topic) messages
-import std_msgs.msg
+import std_msgs.msg # type: ignore
 # ROS2 sensor (topic) messages
-import sensor_msgs.msg
+import sensor_msgs.msg # type: ignore
 # ROS2 standard (service) srvs
-import std_srvs.srv
+import std_srvs.srv # type: ignore
 # OpenCV
-from cv_bridge import CvBridge
+from cv_bridge import CvBridge # type: ignore
 # ROS2CLI API
-import ros2topic.api # get_topic_names_and_types(node=NODE_INSTANCE)
+import ros2topic.api # get_topic_names_and_types(node=NODE_INSTANCE) # type: ignore
 
 # Error handling for pinging
-from rclpy._rclpy_pybind11 import RCLError
+from rclpy._rclpy_pybind11 import RCLError # type: ignore
 # Multithreading
 import threading
 # For system functionality and interaction to add directories to path
@@ -28,8 +28,7 @@ from autonomy_handling import AutonomyClient
 # Telemetry from Core
 from core_telemetry_handler import TelemetryHandler
 
-from comm_Rover import RoverCommTopic, SubscriberClass
-
+from comm_rover import RoverCommNode, SubscriberClass
 # Insert the installation direction into the local path
 # so that message files can be imported
 # Equivalent to sourcing the directory prior
@@ -120,12 +119,11 @@ class RosNode(Node):
 		# for [interface, topic_name, callback] in ACTIVE_SUBSCRIBERS:
 		#     print(f"Subscribing to {topic_name} with interface type {str(interface)} and callback {callback.__name__}")
 		#     self.subscribers[topic_name] = self.create_subscription(interface, topic_name, callback, 0)
-		RoverCommTopic("Core", "Feedback", False, SubscriberClass(std_msgs.msg.String, "/Core/Feedback", self.core_feedback_callback))
-		RoverCommTopic("Bio", "Feedback", False, SubscriberClass(std_msgs.msg.String, "/Bio/Feedback", self.arm_feedback_callback))
-		RoverCommTopic("Arm", "Feedback", False, SubscriberClass(std_msgs.msg.String, "/Arm/Feedback", self.bio_feedback_callbackk))
-		RoverCommTopic("Faerie", "Feedback", False, SubscriberClass(interfaces_pkg.msg.FaerieTelemetry, "/Faerie/Feedback", self.faerie_feedback_callback))
-		RoverCommTopic("Auto", "Feedback", False, SubscriberClass(std_msgs.msg.String, "/Auto/Feedback", self.autonomy_feedback_callback))
-		
+		RoverCommNode("Core", "Feedback", False, SubscriberClass(std_msgs.msg.String, self.core_feedback_callback))
+		RoverCommNode("Bio", "Feedback", False, SubscriberClass(std_msgs.msg.String, self.arm_feedback_callback))
+		RoverCommNode("Arm", "Feedback", False, SubscriberClass(std_msgs.msg.String, self.bio_feedback_callbackk))
+		RoverCommNode("Faerie", "Feedback", False, SubscriberClass(interfaces_pkg.msg.FaerieTelemetry, self.faerie_feedback_callback))
+		RoverCommNode("Auto", "Feedback", False, SubscriberClass(std_msgs.msg.String, self.autonomy_feedback_callback))
 		
 
 	## Subscriber Callbacks
@@ -146,6 +144,7 @@ class RosNode(Node):
 		print(f"Received data from {inspect.stack()[0][3]} feedback topic: {msg.data}")
 		self.append_topic_data(ARM_FEEDBACK, msg)
 
+	#TODO: Alex wtf is this? Doesn't this just explicited do what self.append_topic_data would do in the same scenario?
 	def faerie_feedback_callback(self, msg):
 		print(f"Received data from {inspect.stack()[0][3]} feedback topic: {msg.humidity}, {msg.temperature}")
 		# Check if key is in dictionary
