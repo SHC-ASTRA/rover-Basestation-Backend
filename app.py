@@ -59,6 +59,8 @@ ros_node = RosNode()
 threading.Thread(target=ros2_thread, args=[ros_node]).start()
 prev_sigint_handler = signal.signal(signal.SIGINT, sigint_handler)
 
+req_id = 0
+
 # Root Page, serves built react page
 @app.route('/')
 def serve_page():
