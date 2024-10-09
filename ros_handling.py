@@ -40,22 +40,64 @@ import interfaces_pkg.msg
 # sys.path.insert(1, 'ros_msgs/install/astra_auto_interfaces/')
 # from astra_auto_interfaces.action import NavigateRover
 
-
 CHATTER_TOPIC = "/topic"
-CORE_FEEDBACK = "/astra/core/feedback"
-CORE_CONTROL = "/astra/core/control"
-CORE_PING = "/astra/core/ping"
 
-ARM_FEEDBACK = "/astra/arm/feedback"
+ARM_FEEDBACK = 'astra/arm/feedback'
+AUTO_FEEDBACK = 'astra/auto/feedback'
+BIO_FEEDBACK = 'astra/bio/feedback'
+FAERIE_FEEDBACK = 'astra/arm/bio/feedback'
+CORE_FEEDBACK = 'astra/core/feedback'
+DRONE_FEEDBACK = 'astra/drone/feedback'
+
 ARM_CONTROL = '/astra/arm/control'
-ARM_COMMAND = '/astra/arm/command'
-
-BIO_FEEDBACK = '/astra/bio/feedback'
 BIO_CONTROL = '/astra/bio/control'
-FAERIE_FEEDBACK = '/astra/arm/bio/feedback'
+CORE_CONTROL = "/astra/core/control"
 FAERIE_CONTROL = '/astra/arm/bio/control'
 
-AUTO_FEEDBACK = '/astra/auto/feedback'
+CORE_PING = "/astra/core/ping"
+
+ARM_COMMAND = '/astra/arm/command'
+
+def INIT_ALL_NODES():
+	RoverCommNode(ARM_FEEDBACK, SubscriberClass(std_msgs.msg.String, ARM_FEEDBACK, arm_feedback_callback))
+	RoverCommNode(AUTO_FEEDBACK, SubscriberClass(std_msgs.msg.String, AUTO_FEEDBACK, autonomy_feedback_callback))
+	RoverCommNode(BIO_FEEDBACK, SubscriberClass(std_msgs.msg.String, BIO_FEEDBACK, bio_feedback_callback))
+	RoverCommNode(FAERIE_FEEDBACK, SubscriberClass(interfaces_pkg.msg.FaerieTelemetry, FAERIE_FEEDBACK, faerie_feedback_callback))
+	RoverCommNode(CORE_FEEDBACK, SubscriberClass(std_msgs.msg.String, CORE_FEEDBACK, core_feedback_callback))
+	#Camera
+	RoverCommNode(DRONE_FEEDBACK, SubscriberClass(std_msgs.msg.String, DRONE_FEEDBACK, drone_feedback_callback))
+		
+def core_feedback_callback(self, msg):
+		print(f"Received data from {inspect.stack()[0][3]} topic: {msg.data}")
+		self.append_topic_data(CORE_FEEDBACK, msg)
+
+def bio_feedback_callback(self, msg):
+	print(f"Received data from {inspect.stack()[0][3]} feedback topic: {msg.data}")
+	self.append_topic_data(BIO_FEEDBACK, msg)
+
+def arm_feedback_callback(self, msg):
+	print(f"Received data from {inspect.stack()[0][3]} feedback topic: {msg.data}")
+	self.append_topic_data(ARM_FEEDBACK, msg)
+
+#TODO: Alex wtf is this? Doesn't this just explicited do what self.append_topic_data would do in the same scenario?
+def faerie_feedback_callback(self, msg):
+	print(f"Received data from {inspect.stack()[0][3]} feedback topic: {msg.humidity}, {msg.temperature}")
+	# Check if key is in dictionary
+	try:
+		self.message_data[FAERIE_FEEDBACK]
+	except KeyError:
+		self.message_data[FAERIE_FEEDBACK] = []
+	# Append to the key's list
+	self.message_data[FAERIE_FEEDBACK].append(msg)
+
+def autonomy_feedback_callback(self, msg):
+	print(f"Received data from {inspect.stack()[0][3]} feedback topic: {msg.data}")
+	self.append_topic_data(AUTO_FEEDBACK, msg)
+
+def drone_feedback_callback(self, msg):
+	print(f"Received data from {inspect.stack()[0][3]} feedback topic: {msg.data}")
+	self.append_topic_data(DRONE_FEEDBACK, msg)
+
 
 class RosNode(Node):
 
@@ -119,47 +161,45 @@ class RosNode(Node):
 		# for [interface, topic_name, callback] in ACTIVE_SUBSCRIBERS:
 		#     print(f"Subscribing to {topic_name} with interface type {str(interface)} and callback {callback.__name__}")
 		#     self.subscribers[topic_name] = self.create_subscription(interface, topic_name, callback, 0)
-		RoverCommNode("Core", "Feedback", False, SubscriberClass(std_msgs.msg.String, self.core_feedback_callback))
-		RoverCommNode("Bio", "Feedback", False, SubscriberClass(std_msgs.msg.String, self.arm_feedback_callback))
-		RoverCommNode("Arm", "Feedback", False, SubscriberClass(std_msgs.msg.String, self.bio_feedback_callbackk))
-		RoverCommNode("Faerie", "Feedback", False, SubscriberClass(interfaces_pkg.msg.FaerieTelemetry, self.faerie_feedback_callback))
-		RoverCommNode("Auto", "Feedback", False, SubscriberClass(std_msgs.msg.String, self.autonomy_feedback_callback))
-		
 
+		
 	## Subscriber Callbacks
 
 	# Primary ROS topic feedback topics
 	# String-based topics
 	# They use of a dictionary of topic names as keys, storing the message data in arrays 
-
-	def core_feedback_callback(self, msg):
-		print(f"Received data from {inspect.stack()[0][3]} topic: {msg.data}")
-		self.append_topic_data(CORE_FEEDBACK, msg)
-
-	def bio_feedback_callback(self, msg):
-		print(f"Received data from {inspect.stack()[0][3]} feedback topic: {msg.data}")
-		self.append_topic_data(BIO_FEEDBACK, msg)
-
-	def arm_feedback_callback(self, msg):
-		print(f"Received data from {inspect.stack()[0][3]} feedback topic: {msg.data}")
-		self.append_topic_data(ARM_FEEDBACK, msg)
-
-	#TODO: Alex wtf is this? Doesn't this just explicited do what self.append_topic_data would do in the same scenario?
-	def faerie_feedback_callback(self, msg):
-		print(f"Received data from {inspect.stack()[0][3]} feedback topic: {msg.humidity}, {msg.temperature}")
-		# Check if key is in dictionary
-		try:
-			self.message_data[FAERIE_FEEDBACK]
-		except KeyError:
-			self.message_data[FAERIE_FEEDBACK] = []
-		# Append to the key's list
-		self.message_data[FAERIE_FEEDBACK].append(msg)
-
-	def autonomy_feedback_callback(self, msg):
-		print(f"Received data from {inspect.stack()[0][3]} feedback topic: {msg.data}")
-		self.append_topic_data(AUTO_FEEDBACK, msg)
-
 	
+	# def core_feedback_callback(self, msg):
+	# 	print(f"Received data from {inspect.stack()[0][3]} topic: {msg.data}")
+	# 	self.append_topic_data(CORE_FEEDBACK, msg)
+
+	# def bio_feedback_callback(self, msg):
+	# 	print(f"Received data from {inspect.stack()[0][3]} feedback topic: {msg.data}")
+	# 	self.append_topic_data(BIO_FEEDBACK, msg)
+
+	# def arm_feedback_callback(self, msg):
+	# 	print(f"Received data from {inspect.stack()[0][3]} feedback topic: {msg.data}")
+	# 	self.append_topic_data(ARM_FEEDBACK, msg)
+
+	# TODO: Alex wtf is this? Doesn't this just explicited do what self.append_topic_data would do in the same scenario?
+	# def faerie_feedback_callback(self, msg):
+	# 	print(f"Received data from {inspect.stack()[0][3]} feedback topic: {msg.humidity}, {msg.temperature}")
+	# 	# Check if key is in dictionary
+	# 	try:
+	# 		self.message_data[FAERIE_FEEDBACK]
+	# 	except KeyError:
+	# 		self.message_data[FAERIE_FEEDBACK] = []
+	# 	# Append to the key's list
+	# 	self.message_data[FAERIE_FEEDBACK].append(msg)
+
+	# def autonomy_feedback_callback(self, msg):
+	# 	print(f"Received data from {inspect.stack()[0][3]} feedback topic: {msg.data}")
+	# 	self.append_topic_data(AUTO_FEEDBACK, msg)
+
+	# def drone_feedback_callback(self, msg):
+	# 	print(f"Received data from {inspect.stack()[0][3]} feedback topic: {msg.data}")
+	# 	self.append_topic_data(DRONE_FEEDBACK, msg)
+
 	# Send a ping
 	def send_ping(self):
 		self.future = self.ping_client.call_async(std_srvs.srv.Empty.Request())
@@ -207,13 +247,13 @@ class RosNode(Node):
 		print(f"Publishing data to \"{topic_name}\": {str_data}")
 
 	# Create a subscriber with a given callback
-	def create_string_subscriber(self, topic_name: str, callback):
-		self.create_subscription(
-			std_msgs.msg.String,
-			topic_name,
-			callback,
-			0
-		)
+	# def create_string_subscriber(self, topic_name: str, callback):
+		# self.create_subscription(
+		# 	std_msgs.msg.String,
+		# 	topic_name,
+		# 	callback,
+		# 	0
+		# )
 
 	## Make use of the ROS2 CLI API to perform some actions
 	# The command interface is implemented almost solely (97% in Python on the repository), making 

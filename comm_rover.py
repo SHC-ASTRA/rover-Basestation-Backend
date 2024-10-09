@@ -11,33 +11,34 @@ from rclpy.node import Node # type: ignore
 # For inspecting the call stack, a.k.a LITERAL MAGIC
 import inspect
 
+# Fake class for type spec on NodeList
+class RoverCommNode:
+	{}
 """
 Dictionary of keys {/primary_node_name/node_name, RoverCommNode}
 """
-NodeList : dict = {}
+NodeList : dict[str, RoverCommNode] = {}
 
 class SubscriberClass:
 	"""
 	Encapsulation class for subscriber callbacks.
 	"""
 	def __init__(self, return_type : type, node_name : str, method_callback : function):
-		"""
-		Bruh
-		"""
 		self.return_type = return_type
 		self.node_name = node_name
 		self.method_callback = method_callback
 
+		# The real init function 
 		self.subscription = self.RoverCommNode.nnode.create_subscription(
 			self.return_type,
 			self.node_name,
-			self.feedback_callback,
+			self.standard_feedback_callback,
 			0
 		)
 
-		
-	def feedback_callback(self, msg):
-		#Honestly this function is a bit extraneous but whatever. see if I care.
+	#This function is a parent that we call the sub-callbacks from.
+	#Primary goal is simplification.
+	def standard_feedback_callback(self, msg):
 		print(f"Received data from {inspect.stack()[0][3]} node: {msg.data}")
 		self.append_node_data(self.callback_name, msg)
 
@@ -58,57 +59,46 @@ class RoverCommNode:
 	
 	Parameters:
 	-
-	primary_node_name: `str`
-		"Directory" for the node to be placed in
-	node_name: `str`
-		The name for the node to have
-	publisher: `bool`
-		If this node is a publisher or subscriber
+	node_directory: `str`
+		The directory for the node to be placed in.
 	subscriber: `SubscriberClass`
 		Optional; used to pass in subscriber information.
-		only used if publisher is False
+		If not passed, defaults to publisher.
 	
+	They didn't want me to make it a good class, I don't care I'm doing it anyway you can't stop me
 	"""
-	def __init__(self, primary_node_name, node_name : list, publisher : bool, subscriber : SubscriberClass = 0):
-		"""
-		How are you even able to read this?
-		Anyway, this function does the heavy
-		lifting to create your node, depending on passed in params,
-		as either a listenerer or publisher.
-		"""
-		self.publisher = publisher
+	def __init__(self, node_directory : str,  subscriber : SubscriberClass = 0):
+
 		self.nnode = Node()
 
-		if ~publisher:
+		NodeList.update(node_directory, self)
+
+		if subscriber != 0:
 			self.subscriber = subscriber
-
-		# The name of the topic we're creating
-		nname : str = '/' + primary_node_name + '/' + node_name
-
-		NodeList.update(nname, self)
-
-		if ~publisher:
+			# The one good thing about python...
 			def node():
 				try:
-					return {'data': self.nnode.message_data[nname]}
+					return {'data': self.nnode.message_data[node_directory]}
 				except KeyError:
 					return {'data': 'No data was found.'}
-			app.add_url_rule('/', nname, node)
+			# This registers the node to the webserver for widget use
+			# Analogous to @app.route(*)
+			app.add_url_rule('/', node_directory, node)
 
-			print(f"Subscribing to {nname} with interface type {str(subscriber.returnType)} and callback {str(subscriber.methodCallback)}")
-			self.nnode.subscribers[nname] = subscriber.subscription
+			print(f"Subscribing to {node_directory} with interface type {str(subscriber.returnType)} and callback {str(subscriber.methodCallback)}")
+			self.nnode.subscribers[node_directory] = subscriber.subscription
 		else:
 			def node():
 				if request.method == 'POST':
 					command = request.get_json()['command']
-					print(f"Sending command {command} to " + nname)
+					print(f"Sending command {command} to " + node_directory)
 
-					if nname not in self.nnode.publishers.keys():
-						self.nnode.create_string_publisher(nname)
+					if node_directory not in self.nnode.publishers.keys():
+						self.nnode.create_string_publisher(node_directory)
 
-					self.nnode.publish_string_data(nname, command)
+					self.nnode.publish_string_data(node_directory, command)
 
 					return {'data': command}
-				print("Invalid method on " + nname)
+				print("Invalid method on " + node_directory)
 				return {'data': 0}
-			app.add_url_rule('/', nname, node, methods = ['POST'])
+			app.add_url_rule('/', node_directory, node, methods = ['POST'])
