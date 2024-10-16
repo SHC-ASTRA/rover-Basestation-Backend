@@ -23,11 +23,8 @@ import time
 
 import concurrent.futures
 
-# Insert the installation direction into the local path
-# so that message files can be imported
-# Equivalent to sourcing the directory prior
-sys.path.insert(1, 'ros_msgs/install/interfaces_pkg/')
-
+# It is necessary that the interfaces_pkg is sourced prior
+# to running the flask application
 from interfaces_pkg.msg import ControllerState
 
 

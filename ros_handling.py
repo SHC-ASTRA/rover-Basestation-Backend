@@ -22,8 +22,8 @@ import sys
 # For inspecting the call stack
 import inspect
 
-# Autonomy
-from autonomy_handling import AutonomyClient
+# Autonomy: TO BE REFACTORED
+# from autonomy_handling import AutonomyClient
 
 # Telemetry from Core
 from core_telemetry_handler import TelemetryHandler
