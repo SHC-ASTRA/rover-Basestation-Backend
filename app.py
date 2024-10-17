@@ -199,6 +199,8 @@ def auto_control():
         print("Invalid method on /auto/control")
 
 # Miscellaneous Endpoints
+
+# REWRITE THIS TO MAKE USE OF NEW CLASS
 @app.route('/core/ping')
 def ping():
     if not ros_node.services_started:
