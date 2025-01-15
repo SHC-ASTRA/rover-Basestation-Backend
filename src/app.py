@@ -8,17 +8,17 @@ import os
 # http things
 from aiohttp import web
 import aiohttp
-import aiohttp_utils
+from . import aiohttp_utils
 
 # protobuf things
 from google.protobuf.any_pb2 import Any as ProtoAny
-from controller_pb2 import Controller as ProtoController
+from . import controller_pb2 as ProtoController
 
 # ros things
 import rclpy
 from std_msgs import msg as std_msgs
 import interfaces_pkg.msg as astra_msgs
-import ros_utils
+from . import ros_utils
 
 # see: https://github.com/m2-farzan/ros2-asyncio
 
@@ -97,10 +97,3 @@ async def main():
     await runner.setup()
     site = web.TCPSite(runner, host="0.0.0.0", port="5000")
     await site.start()
-
-
-if __name__ == "__main__":
-    future = asyncio.wait([ros_loop(), main()], return_when=asyncio.FIRST_EXCEPTION)
-    done, _ = asyncio.get_event_loop().run_until_complete(future)
-    for task in done:
-        task.result()  # raises exceptions if any

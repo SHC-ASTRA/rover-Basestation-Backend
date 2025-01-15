@@ -1,7 +1,7 @@
 import asyncio
 from typing import *
 from rclpy import qos, node
-from controller_pb2 import Controller as ProtoController
+from . import controller_pb2 as ProtoController
 import interfaces_pkg.msg as astra_msgs
 
 T = TypeVar("T")

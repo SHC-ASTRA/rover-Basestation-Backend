@@ -4,8 +4,7 @@
 This file exists for testing purposes, while the frontend is still being worked on.
 """
 
-from controller_pb2 import Controller as ProtoController
-from vector_pb2 import Vector as ProtoVector
+from . import controller_pb2 as ProtoController
 from google.protobuf.any_pb2 import Any as ProtoAny
 import asyncio
 import aiohttp
