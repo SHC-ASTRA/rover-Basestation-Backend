@@ -44,7 +44,7 @@ def generate_random_data() -> ProtoController:
 
 
 async def ws_client():
-    url = "ws://localhost:8080/api/ws"
+    url = "ws://localhost:5000/api/ws"
 
     async with aiohttp.ClientSession() as session:
         async with session.ws_connect(url) as ws:
