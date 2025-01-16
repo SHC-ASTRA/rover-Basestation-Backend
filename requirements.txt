@@ -1,0 +1,16 @@
+wheel
+
+# runtime
+aiohttp>=3.11.8,<3.12.0
+aiodns>=3.2.0
+Brotli>=1.1.0
+protobuf >=5.29.0,<5.30
+
+# dev
+pylance
+black
+
+# colcon
+empy>=3.3.4,<4.0.0
+catkin_pkg>=1.0.0,<1.1.0
+lark>=1.2.2,<1.3.0
