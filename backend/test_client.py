@@ -4,12 +4,15 @@
 This file exists for testing purposes, while the frontend is still being worked on.
 """
 
-from . import controller_pb2 as ProtoController
-from google.protobuf.any_pb2 import Any as ProtoAny
 import asyncio
+from generated import ProtoController
+from google.protobuf.any_pb2 import Any as ProtoAny
 import aiohttp
 from typing import *
 import random
+import logging
+
+LOG = logging.getLogger(__name__)
 
 
 def generate_random_data() -> ProtoController:
@@ -37,35 +40,40 @@ def generate_random_data() -> ProtoController:
     data.left_stick.y = random.random()
     data.right_stick.x = random.random()
     data.right_stick.y = random.random()
-    data.id = 1
+    data.submodule = "core"
 
     return data
 
 
+async def send_data(ws: aiohttp.ClientWebSocketResponse):
+    while not (ws.closed):
+        to_send = ProtoAny()
+        to_send.Pack(generate_random_data())
+
+        await ws.send_bytes(to_send.SerializeToString())
+        await asyncio.sleep(1)
+
+
 async def ws_client():
-    url = "ws://localhost:5000/api/ws"
+    url = "ws://localhost:80/api/ws"
 
     async with aiohttp.ClientSession() as session:
         async with session.ws_connect(url) as ws:
-            print("Connected to WebSocket server")
+            LOG.info("Connected to WebSocket server")
 
             to_send = ProtoAny()
             to_send.Pack(generate_random_data())
 
-            # Send a message
-            await ws.send_bytes(to_send.SerializeToString())
+            # add sender task
+            asyncio.create_task(send_data(ws))
 
             # Receive a message
             async for msg in ws:
                 if msg.type == aiohttp.WSMsgType.BINARY:
-                    print(f"Message received: {msg.data}")
+                    LOG.info(f"Message received: {msg.data}")
                 elif msg.type == aiohttp.WSMsgType.CLOSE:
-                    print("Connection closed by the server")
+                    LOG.info("Connection closed by the server")
                     break
                 elif msg.type == aiohttp.WSMsgType.ERROR:
-                    print("Error received")
+                    LOG.error("Error received")
                     break
-
-
-if __name__ == "__main__":
-    asyncio.run(ws_client())

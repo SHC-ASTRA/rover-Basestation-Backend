@@ -14,14 +14,16 @@ empy = "^3.3.4"
 catkin-pkg = "^1.0.0"
 lark = "^1.2.2"
 protobuf = "^5.29.3"
+coloredlogs = "^15.0.1"
 
 [tool.poetry.group.dev.dependencies]
 pylance = "^0.22.0"
 black = "^24.10.0"
 
 [tool.poetry.scripts]
-protoc = "src:protoc"
-start = "src:start"
+build = "backend:build"
+start = "backend:start"
+test_client = "backend:test_client"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

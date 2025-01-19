@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package basestation;
+package astra;
 
 import "vector.proto";
 
@@ -31,5 +31,5 @@ message Controller {
     Vector left_stick = 18;
     Vector right_stick = 19;
 
-    uint32 id = 20;
+    string submodule = 20;
 }
