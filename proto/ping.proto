@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package astra;
+
+message Ping {
+    bool healthy = 1;
+    float latency = 2;
+    string submodule = 3;
+}
