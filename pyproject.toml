@@ -19,6 +19,7 @@ coloredlogs = "^15.0.1"
 [tool.poetry.group.dev.dependencies]
 pylance = "^0.22.0"
 black = "^24.10.0"
+mypy-protobuf = "^3.6.0"
 
 [tool.poetry.scripts]
 build = "backend:build"

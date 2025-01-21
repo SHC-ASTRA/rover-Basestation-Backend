@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 
 *_pb2.py
+*_pb2.pyi
 
 # C extensions
 *.so

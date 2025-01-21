@@ -25,12 +25,18 @@ def build():
     py_dir = Path("./generated")
     for path in py_dir.glob("*_pb2.py"):
         path.unlink()
-        LOG.info(f"  removed {path}")
+        LOG.debug(f"  Removed {path}")
 
     # build new proto files
     LOG.info("Building new Python ProtoBuf files")
     subprocess.run(
-        ["protoc", "--proto_path=./proto", "--python_out=./generated"]
+        [
+            "protoc",
+            "--proto_path=./proto",
+            "--python_out=./generated",
+            # also generate stubs for pylance https://github.com/nipunn1313/mypy-protobuf
+            "--mypy_out=./generated",
+        ]
         + [str(path) for path in Path("./proto").glob("*.proto")],
         check=True,
         stdout=stdout,
@@ -57,7 +63,7 @@ def build():
         with open(path, "w") as file:
             file.write(modified_contents)
 
-        LOG.info(f"  modified {path}")
+        LOG.debug(f"  Modified {path}")
 
 
 def test_client():
