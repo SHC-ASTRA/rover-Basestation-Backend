@@ -7,11 +7,9 @@ LOG = logging.getLogger(__name__)
 
 
 def start():
-    import asyncio
-    from backend.app import ros_loop, main
+    from backend.app import main
 
-    future = asyncio.wait([ros_loop(), main()])
-    asyncio.get_event_loop().run_until_complete(future)
+    main()
 
 
 def build():

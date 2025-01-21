@@ -63,6 +63,7 @@ async def ws_client():
 
             to_send = ProtoAny()
             to_send.Pack(generate_random_data())
+            LOG.info("Sent data")
 
             # add sender task
             asyncio.create_task(send_data(ws))

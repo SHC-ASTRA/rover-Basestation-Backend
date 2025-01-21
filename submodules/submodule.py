@@ -1,6 +1,11 @@
 from typing import *
-import rclpy
+from std_srvs.srv import Empty
+from rclpy.node import Node, SrvTypeRequest, SrvTypeResponse
+from rclpy.service import Service
+from generated import ProtoPing
+from time import time
 from util.aiohttp_utils import WSSender
+import logging
 
 
 class Submodule:
@@ -11,11 +16,30 @@ class Submodule:
         The ROS node to use for communication.
     """
 
-    def __init__(self, name: str, ws_sender: WSSender):
+    name: str
+    _node: Node
+
+    _ws_sender: WSSender
+    _ws_map: Dict[str, Callable] = {}
+
+    _ping_server: Service = None
+    last_ping: float = 0.0
+
+    LOG: logging.Logger
+
+    def __init__(
+        self,
+        node: Node,
+        name: str,
+        ws_sender: WSSender,
+    ):
+        self.LOG.info(f"Initializing node {name}")
         self.name = name
-        self._node = rclpy.create_node(name)
+        self._node = node
         self._ws_sender = ws_sender
-        self._ws_map: Dict[str, Callable] = {}
+        self._ping_server = self._node.create_service(
+            Empty, f"/astra/{name}/ping", self.handle_ping
+        )
 
     def handle_ws_msg(self, type_url: str, ws_msg: Any):
         """
@@ -31,11 +55,22 @@ class Submodule:
                 handler(ws_msg)
                 break
 
-    async def spin_once(self, timeout_sec: float = 0):
+    def handle_ping(self, _: SrvTypeRequest, response: SrvTypeResponse):
         """
-        Spin the ROS node once.
+        Handle a ping request.
 
-        :param timeout_sec: float
-            The timeout for the spin.
+        :param request: SrvTypeRequest
+            The request.
+        :param response: SrvTypeResponse
+            The response.
+        :return: SrvTypeResponse
         """
-        rclpy.spin_once(self._node, timeout_sec=timeout_sec)
+        self.LOG.debug(f"Received ping from {self.name}")
+        self.last_ping = time()
+
+        ping = ProtoPing()
+        ping.timestamp = self.last_ping
+        ping.submodule = self.name
+        self._ws_sender.send(ping)
+        response.success = True
+        return response

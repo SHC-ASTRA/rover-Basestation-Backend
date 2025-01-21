@@ -1,6 +1,7 @@
 from aiohttp import web
 from typing import *
 from google.protobuf.any_pb2 import Any as ProtoAny
+import asyncio
 import logging
 
 LOG = logging.getLogger(__name__)
@@ -17,7 +18,7 @@ def file_route(table: web.RouteTableDef, route: str, path: str):
     :param path: str
         The path to the file to serve.
     """
-    LOG.info(f"registered file route {route} -> {path}")
+    LOG.debug(f"registered file route {route} -> {path}")
 
     @table.get(route)
     def _inner(_: web.BaseRequest) -> web.FileResponse:
@@ -33,6 +34,7 @@ class WSSender:
     """
 
     _connections: Set[web.WebSocketResponse] = set()
+    _queue: asyncio.Queue = asyncio.Queue()
 
     def __init__(self, compress: Optional[int] = None):
         self.compress = compress
@@ -73,8 +75,27 @@ class WSSender:
         :param msg: bytes
             The message to send.
         """
+        await self._queue.put(msg)
+
+    async def loop(self):
+        """
+        Main loop to send messages to all handled websockets.
+        """
+        while True:
+            print("hi")
+            await self._send_all(await self._queue.get())
+
+    async def _send_all(self, msg: ProtoAny):
+        """
+        Send a message to all handled websockets.
+
+        :param msg: bytes
+            The message to send.
+        """
 
         msg_bytes = msg.SerializeToString()
+
+        LOG.debug(msg_bytes)
 
         # send messages to all connections
         to_remove = set()
@@ -89,3 +110,11 @@ class WSSender:
         # remove closed connections
         for ws in to_remove:
             self.remove(ws)
+
+    async def close(self):
+        """
+        Close all connections.
+        """
+        for ws in self._connections:
+            await ws.close()
+        self._connections.clear()
