@@ -88,10 +88,7 @@ def main():
     rclpy.init()
     submodules.add(Core(rclpy.create_node("core"), ws_connections))
 
-    # register a static file route for each of the proto files
     LOG.info("Initializing webserver routes")
-    for file in os.listdir("proto"):
-        aiohttp_utils.file_route(routes, f"/api/proto/{file}", f"./proto/{file}")
 
     loop = asyncio.get_event_loop()
     future = asyncio.wait(
