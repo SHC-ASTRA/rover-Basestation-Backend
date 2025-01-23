@@ -2,7 +2,7 @@ __version__ = "0.1.0"
 import coloredlogs, logging
 import os
 
-coloredlogs.install(level=os.environ.get("LOG_LEVEL", "INFO"))
+coloredlogs.install(level=os.environ.get("LOG_LEVEL", "DEBUG"))
 LOG = logging.getLogger(__name__)
 
 
