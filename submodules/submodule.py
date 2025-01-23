@@ -2,7 +2,6 @@ from typing import *
 from std_srvs.srv import Empty
 from rclpy.node import Node, SrvTypeRequest, SrvTypeResponse
 from rclpy.service import Service
-from generated import ProtoPing
 from time import time
 from util.aiohttp_utils import WSSender
 import logging
@@ -67,10 +66,3 @@ class Submodule:
         """
         self.LOG.debug(f"Received ping from {self.name}")
         self.last_ping = time()
-
-        ping = ProtoPing()
-        ping.timestamp = self.last_ping
-        ping.submodule = self.name
-        self._ws_sender.send(ping)
-        response.success = True
-        return response

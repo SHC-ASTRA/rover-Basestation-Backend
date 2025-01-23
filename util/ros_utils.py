@@ -1,9 +1,8 @@
 from typing import *
 import interfaces_pkg.msg as astra_msgs
-from generated import ProtoController
 
 
-def convert_controller(data: ProtoController) -> astra_msgs.ControllerState:
+def convert_controller(data) -> astra_msgs.ControllerState:
     return astra_msgs.ControllerState(
         # triggers and bumpers
         lt=data.left_trigger,

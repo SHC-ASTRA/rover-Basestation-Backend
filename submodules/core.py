@@ -1,6 +1,5 @@
 from submodules import Submodule
 from interfaces_pkg.msg import ControllerState, CoreFeedback
-from generated import ProtoController, ProtoCoreFeedback
 from util.ros_utils import convert_controller
 from util.aiohttp_utils import WSSender
 from rclpy.node import Node
@@ -16,9 +15,7 @@ class Core(Submodule):
 
     def __init__(self, node: Node, ws_sender: WSSender):
         super().__init__(node, "core", ws_sender)
-        self._ws_map[f"type.googleapis.com/{ProtoController.DESCRIPTOR.full_name}"] = (
-            self._handle_controller_msg
-        )
+
         self._controller_publisher = self._node.create_publisher(
             ControllerState, "/astra/core/controller", 10
         )
@@ -29,7 +26,7 @@ class Core(Submodule):
         for ws_msg in self._ws_map.keys():
             self.LOG.debug(f"listening for {ws_msg}")
 
-    def _handle_controller_msg(self, ws_msg: ProtoController):
+    def _handle_controller_msg(self, ws_msg):
         if ws_msg.submodule == "core":
             self._controller_publisher.publish(convert_controller(ws_msg))
 
@@ -37,7 +34,7 @@ class Core(Submodule):
         """
         Convert CoreFeedback message to ProtoCoreFeedback and send it to the websockets.
         """
-        ws_msg = ProtoCoreFeedback()
+        ws_msg = {}
         ws_msg.gps_latitude = msg.gpslat
         ws_msg.gps_longitude = msg.gpslon
         ws_msg.gps_altitude = msg.gpsalt
