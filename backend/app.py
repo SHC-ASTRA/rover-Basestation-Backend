@@ -11,10 +11,6 @@ from aiohttp import web
 import aiohttp
 from util import aiohttp_utils
 
-# protobuf things
-from generated import ProtoController
-from google.protobuf.any_pb2 import Any as ProtoAny
-
 # ros things
 import rclpy
 from rclpy.executors import MultiThreadedExecutor
@@ -60,33 +56,20 @@ async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
             LOG.error(f"invalid websocket message type at ip {request.remote}")
             continue
 
-        # at this point, we don't know what type of data the packet holds,
-        # but we can load it into a ProtoAny so we can check what it is
-        raw_data = ProtoAny()
-        raw_data.ParseFromString(msg.data)
-
-        data: Optional[Any] = None
-
+        # Parse websocket data msg.data
         LOG.debug(
-            f"received websocket message from ip {request.remote} with type {raw_data.type_url}"
+            f"received websocket message from ip {request.remote} with type {type msg.data}"
         )
 
-        # figure out what type of data we got
-        match raw_data.type_url.split("/")[-1]:
-            case "astra.Controller":
-                controller = ProtoController()
-                raw_data.Unpack(controller)
-                data = controller
-            case _:
-                LOG.error("unable to parse websocket data")
+        
 
         # if we got no data, skip the rest
-        if data is None:
+        if msg.data is None:
             continue
 
         # send the data to all submodules, they will handle it if they can
-        for submodule in submodules:
-            submodule.handle_ws_msg(raw_data.type_url, data)
+        """ for submodule in submodules:
+            submodule.handle_ws_msg() """
     return ws
 
 
