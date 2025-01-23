@@ -41,28 +41,6 @@ def build():
         stderr=stderr,
     )
 
-    # modify proto files to work in poetry
-    # by default, imports of other protos look like `import protoname_pb2 ...`
-    # but in a package, local imports need to use `.`, eg `from . import protoname_pb2 ...`
-    LOG.info("Modifying new Python ProtoBuf files")
-    py_paths = py_dir.glob("*_pb2.py")
-    for path in py_paths:
-        with open(path, "r") as file:
-            contents = file.read()
-
-        # add `from . ` to the start of lines that import other protobuf files
-        modified_contents = re.sub(
-            r"^(import \w+?_pb2 .+?)$",
-            r"from . \1",
-            contents,
-            flags=re.M,
-        )
-
-        with open(path, "w") as file:
-            file.write(modified_contents)
-
-        LOG.debug(f"  Modified {path}")
-
 
 def test_client():
     from .test_client import ws_client
