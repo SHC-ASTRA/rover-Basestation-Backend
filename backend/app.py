@@ -11,6 +11,9 @@ from aiohttp import web
 import aiohttp
 from util import aiohttp_utils
 
+# websocket data
+import json
+
 # ros things
 import rclpy
 from rclpy.executors import MultiThreadedExecutor
@@ -43,25 +46,41 @@ async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
 
     # when we get a message
     async for msg in ws:
+        if msg.data == "close":
+            await ws.close()
+
+        # The websocket is closed or has errored
+        # BREAK out of the FOR and stop processing
+
         if msg.type == aiohttp.WSMsgType.ERROR:
-            LOG.error(
+            LOG.fatal(
                 f"websocket connection at ip {request.remote} closed with exception {msg.data}"
             )
             break
+        # Appears to not be properly handling disconnects
+        # Further investigate
         if msg.type == aiohttp.WSMsgType.CLOSE:
             LOG.info(f"websocket connection at ip {request.remote} closed")
             break
-        # ensure we only use binary data
-        if msg.type != aiohttp.WSMsgType.BINARY:
-            LOG.error(f"invalid websocket message type at ip {request.remote}")
+
+        # Type checks
+        # If the check is failed, skip this particular message
+        # and CONTINUE to the next message
+
+        if not (msg.type == aiohttp.WSMsgType.TEXT):
+            LOG.error(
+                f"websocket data from {request.remote} with invalid type {msg.type}"
+            )
             continue
 
         # Parse websocket data msg.data
-        LOG.debug(
-            f"received websocket message from ip {request.remote} with type {type msg.data}"
-        )
+        try:
+            data_object = json.loads(msg.data)
+        except json.decoder.JSONDecodeError:
+            LOG.error("websocket data is not of valid JSON format")
+            continue
 
-        
+        LOG.debug(f"Websocket data {msg.data} decoded to {data_object}")
 
         # if we got no data, skip the rest
         if msg.data is None:
