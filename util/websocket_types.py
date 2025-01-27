@@ -1,6 +1,9 @@
 # Type hinting
 from typing import *
 
+# Data processing
+import json
+
 # enums
 from enum import Enum
 
@@ -72,10 +75,11 @@ class ExpectedKeys:
 
 class WebSocketData:
 
-    def __init__(self, data):
-        if "submodule" not in data.keys():
+    def __init__(self, raw_data):
+        self.loaded_data = json.loads(raw_data)
+        if "submodule" not in self.loaded_data.keys():
             return
-        self.submodule = data.submodule
+        self.submodule = self.loaded_data.submodule
 
     def verify_props(self, data: dict, ex_keys: list[ExpectedKeys]):
         # Check data to confirm all keys are in the data
@@ -99,6 +103,7 @@ class WebSocketData:
             # it is not expected to be present
             # return False
             if key_iterator not in c_keys_ex:
+                LOG.warning(f"Websocket data provided does not include {key_iterator}")
                 return False
 
             # Check if the value is of the correct type
@@ -106,14 +111,13 @@ class WebSocketData:
                 return False
         return True
 
-
+# Represents a single message from a controller socket
 class ControllerData(WebSocketData):
 
-    def __init__(self, data):
-        super().__init__(data)
-        if not super().verify_props(data, self.expected_keys):
+    def __init__(self, raw_data):
+        super().__init__()
+        if not self.verify_props(self.loaded_data, self.controller_keys):
             raise TypeError
-        self.data = data
 
     controller_keys = [
         # The submodule to pass this data to
