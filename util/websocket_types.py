@@ -70,7 +70,7 @@ class ExpectedKeys:
         return self.ex_keys
 
 
-class WebSocketDat:
+class WebSocketData:
 
     def __init__(self, data):
         if "submodule" not in data.keys():
@@ -107,7 +107,7 @@ class WebSocketDat:
         return True
 
 
-class ControllerDat(WebSocketDat):
+class ControllerData(WebSocketData):
 
     def __init__(self, data):
         super().__init__(data)
