@@ -40,20 +40,6 @@ class Submodule:
             Empty, f"/astra/{name}/ping", self.handle_ping
         )
 
-    def handle_ws_msg(self, type_url: str, ws_msg: Any):
-        """
-        Handle a message from a websocket.
-
-        :param type_url: str
-            The type of the message.
-        :param ws_msg: Any
-            The message to handle.
-        """
-        for msg_type, handler in self._ws_map.items():
-            if type_url == msg_type:
-                handler(ws_msg)
-                break
-
     def handle_ping(self, _: SrvTypeRequest, response: SrvTypeResponse):
         """
         Handle a ping request.
