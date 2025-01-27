@@ -36,7 +36,7 @@ async def spin_submodule(submodule: Submodule):
     LOG.info(f"ROS loop exited for {submodule.name}")
 
 
-@routes.get("/api/ws")
+@routes.get("/api/ws/controller")
 async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
     # get the websocket ready to use
     ws = web.WebSocketResponse(heartbeat=3)
@@ -47,7 +47,9 @@ async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
     # when we get a message
     async for msg in ws:
         if msg.data == "close":
+            LOG.info(f"websocket connection at ip {request.remote} requested close")
             await ws.close()
+            break
 
         # The websocket is closed or has errored
         # BREAK out of the FOR and stop processing
@@ -56,11 +58,6 @@ async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
             LOG.fatal(
                 f"websocket connection at ip {request.remote} closed with exception {msg.data}"
             )
-            break
-        # Appears to not be properly handling disconnects
-        # Further investigate
-        if msg.type == aiohttp.WSMsgType.CLOSE:
-            LOG.info(f"websocket connection at ip {request.remote} closed")
             break
 
         # Type checks
