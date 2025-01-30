@@ -79,7 +79,6 @@ class WebSocketData:
         self.loaded_data = json.loads(raw_data)
         if "submodule" not in self.loaded_data.keys():
             return
-        self.submodule = self.loaded_data.submodule
 
     def verify_props(self, data: dict, ex_keys: list[ExpectedKeys]):
         # Check data to confirm all keys are in the data
@@ -87,6 +86,7 @@ class WebSocketData:
         for key_iterator, value_iterator in data.items():
             # Current out of loop scope iterator
             # for expected keys argument
+            # Predefined, but not with the correct value
             c_keys_ex = ExpectedKeys
             # Loop through the expected keys,
             # and confirm that the property exists
@@ -111,10 +111,11 @@ class WebSocketData:
                 return False
         return True
 
+
 # Represents a single message from a controller socket
 class ControllerData(WebSocketData):
 
-    def __init__(self, raw_data):
+    def __init__(self, raw_data: dict):
         super().__init__()
         if not self.verify_props(self.loaded_data, self.controller_keys):
             raise TypeError
