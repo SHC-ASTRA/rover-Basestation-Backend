@@ -5,6 +5,8 @@ from rclpy.service import Service
 from time import time
 from util.aiohttp_utils import WSSender
 import logging
+from abc import abstractmethod
+from util.websocket_types import WebSocketData
 
 
 class Submodule:
@@ -52,3 +54,6 @@ class Submodule:
         """
         self.LOG.debug(f"Received ping from {self.name}")
         self.last_ping = time()
+
+    @abstractmethod
+    def handle_ws_msg(self, ws_data: WebSocketData): ...
