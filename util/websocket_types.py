@@ -71,14 +71,20 @@ class ExpectedKeys:
 
         # Return if the input datatype is equivalent to
         # the expected data type
+
+        # A non-empty Tuple evaluates to a Truthy value
+        # This allows for error checking if this function returns false
         return (in_data[0], proc_val)
 
     def validate_single_val(self, in_value: Any) -> bool:
+        # Validate without providing the key name
         return self.validate_tup((None, in_value))
 
+    # Used for checking "in"
     def __contains__(self, key):
         return key in self.ex_keys
 
+    # When evaluated as an iterator
     def __iter__(self):
         for key in self.ex_keys:
             yield key
@@ -88,6 +94,7 @@ class WebSocketData:
 
     def __init__(self, raw_data: dict):
         self.loaded_data = json.loads(raw_data)
+        # It is necessary that a submodule is provided at minimum
         if "submodule" not in self.loaded_data.keys():
             return
 
