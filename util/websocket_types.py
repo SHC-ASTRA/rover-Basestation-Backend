@@ -26,9 +26,16 @@ class SubmoduleTypes(Enum):
 
 # 2d vector, for thumbsticks
 class Vector2:
-    def __init__(self, x_in: float, y_in: float):
-        self.x = x_in
-        self.y = y_in
+    def __init__(self, raw_data: str):
+        values = dict
+        try:
+            values = json.loads(raw_data)
+        except:
+            LOG.error(
+                f'Attempted to parse invalid data "{raw_data}" as JSON for Vector2'
+            )
+        self.x = float(values["x"])
+        self.y = float(values["y"])
 
 
 # Acts to ensure that where expected keys are
@@ -44,24 +51,27 @@ class ExpectedKeys:
             LOG.warning(
                 f"ExpectedKeys called from {parentCallerFrame[1][0]} with duplicate keys"
             )
-
         self.ex_keys = in_ex_keys
         self.ex_type = in_ex_type
+        LOG.debug(f"Initalized ExpectedKeys item with type {self.ex_type}")
 
     def validate_tup(self, in_data: Tuple[str, Any]) -> bool:
         # in_data is expected to be an item from
         # a dict.items call
 
-        # fmt: off
         # Get the value rather than the key
         in_value = in_data[1]
-        # For readability sake
-        in_type  = type(in_value)
-        # fmt: on
+        # Process into the type
+        try:
+            proc_val = self.ex_type(in_value)
+        except Exception as e:
+            LOG.error(f"Failed to process {in_data[0]}: {in_value} as {str(type)}")
+            LOG.error(f"{e}")
+            return False
 
         # Return if the input datatype is equivalent to
         # the expected data type
-        return in_type is self.ex_type
+        return (in_data[0], proc_val)
 
     def validate_single_val(self, in_value: Any) -> bool:
         return self.validate_tup((None, in_value))
@@ -70,45 +80,75 @@ class ExpectedKeys:
         return key in self.ex_keys
 
     def __iter__(self):
-        return self.ex_keys
+        for key in self.ex_keys:
+            yield key
 
 
 class WebSocketData:
 
-    def __init__(self, raw_data):
+    def __init__(self, raw_data: dict):
         self.loaded_data = json.loads(raw_data)
         if "submodule" not in self.loaded_data.keys():
             return
 
-    def verify_props(self, data: dict, ex_keys: list[ExpectedKeys]):
+    def subset_of_expected(self, ex_keys: list[ExpectedKeys]) -> bool:
+        # Some cursed list comprehension to
+        # get the concatenation of all expected keys
+        all_expected_keys = [key for instance in ex_keys for key in instance]
+        """ Equivalent to
+            for instance in ex_keys list:
+                for key in instance
+                    append_to_list(key)
+        """
+
+        # Convert the expected keys to a set
+        expected_keys_set = set(all_expected_keys)
+        # Get the keys of the loaded data
+        loaded_keys_set = set(self.loaded_data.keys())
+        # Actually check if all expected keys are in the loaded data
+        return expected_keys_set.issubset(loaded_keys_set)
+
+    def verify_props(self, data: dict, ex_keys_list: list[ExpectedKeys]):
         # Check data to confirm all keys are in the data
         # and vice versa
-        for key_iterator, value_iterator in data.items():
+        ex_is_subset = self.subset_of_expected(ex_keys_list)
+        if not ex_is_subset:
+            LOG.warning(
+                "There was an error the expected keys as a subset of the loaded data"
+            )
+            return False
+
+        for input_key, input_value in data.items():
             # Current out of loop scope iterator
             # for expected keys argument
             # Predefined, but not with the correct value
-            c_keys_ex = ExpectedKeys
+            current_keys_expected = ExpectedKeys
             # Loop through the expected keys,
             # and confirm that the property exists
-            for index in ex_keys:
+            for expected_keys_item in ex_keys_list:
                 # Assign out of loop scope iterator
-                c_keys_ex = ex_keys[index]
+                current_keys_expected = expected_keys_item
                 # Check if iterator is currently where
                 # the key is
-                if key_iterator in c_keys_ex:
+                if input_key in current_keys_expected:
                     # If it has been found, break out
                     break
             # If there is a key present in the data,
             # and we have reached the end, but
             # it is not expected to be present
             # return False
-            if key_iterator not in c_keys_ex:
-                LOG.warning(f"Websocket data provided does not include {key_iterator}")
+            if input_key not in current_keys_expected:
+                # Could not find the value in the input data
+                LOG.warning(f"{input_key} exists in input data but not expected keys")
+                # Skip this value
+                continue
+            # Check if the value is of the correct type,
+            # convert to its correct type
+            new_value = current_keys_expected.validate_single_val(input_value)
+            if not new_value:
+                LOG.warning(f"Could not validate data {input_key}: {input_value}")
                 return False
-
-            # Check if the value is of the correct type
-            if not c_keys_ex.validate_single_val(value_iterator):
-                return False
+            self.loaded_data[input_key] = new_value[1]
         return True
 
 
@@ -116,8 +156,15 @@ class WebSocketData:
 class ControllerData(WebSocketData):
 
     def __init__(self, raw_data: dict):
-        super().__init__()
-        if not self.verify_props(self.loaded_data, self.controller_keys):
+
+        LOG.debug("Initalizing parent data ExpectedKeys in ControllerData")
+
+        super().__init__(raw_data)
+
+        LOG.debug("Attempting to process data into controller.")
+
+        if not super().verify_props(self.loaded_data, self.controller_keys):
+            LOG.error(f"There was an error verifying the props for controller data.")
             raise TypeError
 
     controller_keys = [
@@ -139,6 +186,14 @@ class ControllerData(WebSocketData):
                 # left analog press & right analog press
                 "la_press",
                 "ra_press",
+                # Middle buttons
+                "option",
+                "share",
+                # d-pad
+                "up",
+                "down",
+                "left",
+                "right",
             },
             bool,
         ),
@@ -150,5 +205,13 @@ class ControllerData(WebSocketData):
                 "ra_vector",
             ],
             Vector2,
+        ),
+        # Analog trigger value
+        ExpectedKeys(
+            [
+                "left_trigger",
+                "right_trigger",
+            ],
+            float,
         ),
     ]
