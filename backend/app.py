@@ -12,18 +12,21 @@ import aiohttp
 from util import aiohttp_utils
 
 # websocket data
-import json
+from util import websocket_types
 
 # ros things
 import rclpy
 from rclpy.executors import MultiThreadedExecutor
 from submodules import Submodule, Core
 
+# Stack inspection
+import inspect
+
 LOG = logging.getLogger(__name__)
 
 routes = web.RouteTableDef()
 ws_connections = aiohttp_utils.WSSender()
-submodules: Set[Submodule] = set()
+submodules: List[Submodule] = list()
 
 
 async def spin_submodule(submodule: Submodule):
@@ -66,26 +69,29 @@ async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
 
         if not (msg.type == aiohttp.WSMsgType.TEXT):
             LOG.error(
-                f"websocket data from {request.remote} with invalid type {msg.type}"
+                f"ControllerData endpoint from {request.remote} with invalid type {msg.type}"
             )
             continue
-
-        # Parse websocket data msg.data
-        try:
-            data_object = json.loads(msg.data)
-        except json.decoder.JSONDecodeError:
-            LOG.error("websocket data is not of valid JSON format")
-            continue
-
-        LOG.debug(f"Websocket data {msg.data} decoded to {data_object}")
 
         # if we got no data, skip the rest
         if msg.data is None:
             continue
 
+        # Process into controller data
+        websocket_cont_data = websocket_types.ControllerData
+        try:
+            websocket_cont_data = websocket_types.ControllerData(msg.data)
+        except:
+            # There was an error processing the data
+            LOG.error(
+                f"ControllerData endpoint from {request.remote} with invalid controller data"
+            )
+            # Skip ahead to the next message
+            continue
+
         # send the data to all submodules, they will handle it if they can
-        """ for submodule in submodules:
-            submodule.handle_ws_msg() """
+        for submodule in submodules:
+            submodule.handle_ws_msg(websocket_cont_data)
     return ws
 
 
@@ -102,7 +108,7 @@ def main():
     # initialize ROS and submodules
     LOG.info("Initializing ROS")
     rclpy.init()
-    submodules.add(Core(rclpy.create_node("core"), ws_connections))
+    submodules.append(Core(rclpy.create_node("core"), ws_connections))
 
     LOG.info("Initializing webserver routes")
 
