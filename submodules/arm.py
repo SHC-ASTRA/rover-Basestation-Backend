@@ -3,7 +3,6 @@ from submodules import Submodule
 from typing import *
 
 from interfaces_pkg import msg
-from util.websocket_types import ArmFeedbackData, ControllerStateData
 from util.aiohttp_utils import WSSender
 from rclpy.node import Node
 import logging
@@ -15,6 +14,8 @@ class Arm(Submodule):
     """
     Arm rover submodule.
     """
+
+    LOG = logging.getLogger(__name__)
 
     def __init__(self, node: Node, ws_sender: WSSender):
         super().__init__(node, "arm", ws_sender)
@@ -51,10 +52,7 @@ class Arm(Submodule):
             10,
         )
 
-        for ws_msg in self._ws_map.keys():
-            self.LOG.debug(f"listening for {ws_msg}")
-
-    def handle_ws_msg(self, ws_data: websocket_types.WebSocketData) -> bool:
+    def handle_ws_msg(self, ws_data: websocket_types.WebsocketData) -> bool:
         if isinstance(ws_data, websocket_types.ArmIKData):
             self.ik_publisher.publish(ws_data.to_ros())
             return True
@@ -63,19 +61,19 @@ class Arm(Submodule):
             return True
         return False
 
-    def feedback_callback(
+    async def feedback_callback(
         self, ros_data: Union[msg.SocketFeedback, msg.FaerieFeedback, msg.DigitFeedback]
     ):
         match type(ros_data):
             case msg.SocketFeedback:
-                self.ws_sender.send(
+                await self.ws_sender.send(
                     websocket_types.SocketFeedbackData.from_ros(ros_data).to_json()
                 )
             case msg.FaerieFeedback:
-                self.ws_sender.send(
+                await self.ws_sender.send(
                     websocket_types.FaerieFeedbackData.from_ros(ros_data).to_json()
                 )
             case msg.DigitFeedback:
-                self.ws_sender.send(
+                await self.ws_sender.send(
                     websocket_types.DigitFeedbackData.from_ros(ros_data).to_json()
                 )

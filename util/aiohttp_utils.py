@@ -1,6 +1,6 @@
 from aiohttp import web
 from typing import *
-from google.protobuf.any_pb2 import Any as ProtoAny
+from util import websocket_types
 import asyncio
 import logging
 
@@ -68,7 +68,7 @@ class WSSender:
         except KeyError:
             return False
 
-    async def send(self, msg: ProtoAny):
+    async def send(self, msg: str):
         """
         Send a message to all handled websockets.
 
@@ -82,10 +82,9 @@ class WSSender:
         Main loop to send messages to all handled websockets.
         """
         while True:
-            print("hi")
             await self._send_all(await self._queue.get())
 
-    async def _send_all(self, msg: ProtoAny):
+    async def _send_all(self, msg: str):
         """
         Send a message to all handled websockets.
 
@@ -93,9 +92,7 @@ class WSSender:
             The message to send.
         """
 
-        msg_bytes = msg.SerializeToString()
-
-        LOG.debug(msg_bytes)
+        LOG.debug(f"Sending WS message: {msg}")
 
         # send messages to all connections
         to_remove = set()
@@ -105,7 +102,7 @@ class WSSender:
                 to_remove.add(ws)
                 continue
 
-            await ws.send_bytes(msg_bytes, self.compress)
+            await ws.send_str(msg, self.compress)
 
         # remove closed connections
         for ws in to_remove:

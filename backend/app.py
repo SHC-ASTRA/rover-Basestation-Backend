@@ -17,7 +17,7 @@ from util import websocket_types
 # ros things
 import rclpy
 from rclpy.executors import MultiThreadedExecutor
-from submodules import Submodule, Core
+from submodules import Submodule, Core, Arm
 
 LOG = logging.getLogger(__name__)
 
@@ -80,10 +80,12 @@ async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
             for t in websocket_types.types:
                 if t.check_type(msg_type):
                     websocket_data = t.from_dict(
-                        data, msg_type=msg_type, timestamp=msg_timestamp
+                        data, msg_type=msg_type, msg_timestamp=msg_timestamp
                     )
                     break
-        except:
+        except Exception as e:
+            print(msg.data)
+            print(e)
             # There was an error processing the data
             LOG.error(
                 f"ControllerData endpoint from {request.remote} with invalid controller data"
@@ -111,6 +113,7 @@ def main():
     LOG.info("Initializing ROS")
     rclpy.init()
     submodules.append(Core(rclpy.create_node("core"), ws_connections))
+    submodules.append(Arm(rclpy.create_node("arm"), ws_connections))
 
     LOG.info("Initializing webserver routes")
 

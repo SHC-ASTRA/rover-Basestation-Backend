@@ -6,8 +6,6 @@ from util.aiohttp_utils import WSSender
 from rclpy.node import Node
 import logging
 
-LOG = logging.getLogger(__name__)
-
 # Websocket data handling
 from util import websocket_types
 
@@ -16,6 +14,8 @@ class Core(Submodule):
     """
     Core rover submodule.
     """
+
+    LOG = logging.getLogger(__name__)
 
     def __init__(self, node: Node, ws_sender: WSSender):
         super().__init__(node, "core", ws_sender)
@@ -31,9 +31,6 @@ class Core(Submodule):
             self.feedback_callback,
             10,
         )
-
-        for ws_msg in self._ws_map.keys():
-            self.LOG.debug(f"listening for {ws_msg}")
 
     # Process data handling from a websocket and publish it
     def handle_ws_msg(self, ws_msg: websocket_types.CoreControlData) -> bool:

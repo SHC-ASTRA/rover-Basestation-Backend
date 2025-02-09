@@ -9,7 +9,7 @@ import datetime
 
 LOG = logging.getLogger(__name__)
 
-T = TypeVar("T", type)
+T = TypeVar("T", bound=Type["WebsocketData"])
 
 
 class SpecField:
@@ -19,7 +19,7 @@ class SpecField:
         self,
         json_field: str,
         ros_property: str,
-        field_type: Union[type, Type["WebsocketData"]],
+        field_type: Union[type, T],
     ):
         self.field = json_field
         self.ros_property = ros_property
@@ -114,6 +114,9 @@ class WebsocketData(ABC, Generic[T]):
         return cls(out_data, msg_type=msg_type, msg_timestamp=msg_timestamp)
 
     def to_dict(self) -> Dict[str, Any]:
+        """
+        Convert the data to a Dict.
+        """
         out = {}
 
         for entry in self.spec:
@@ -128,6 +131,9 @@ class WebsocketData(ABC, Generic[T]):
         return out
 
     def to_json(self) -> str:
+        """
+        Convert the data to a JSON string.
+        """
         return json.dumps(
             {
                 "type": self.msg_type,
@@ -230,7 +236,8 @@ class ArmManualData(WebsocketData):
             ("effector_roll", "effector_roll", int),
             ("effector_yaw", "effector_yaw", int),
             ("gripper", "gripper", int),
-            ("linear_actuator", "linear_actuator", int)("laser", "laser", int),
+            ("linear_actuator", "linear_actuator", int),
+            ("laser", "laser", int),
         }
     )
 
@@ -274,7 +281,7 @@ class ControllerStateData(WebsocketData):
             ("left",          "d_left",  bool),
             ("right",         "d_right", bool),
 
-            ("home"           "home",    bool),
+            ("home",          "home",    bool),
             # fmt: on
         }
     )
