@@ -17,6 +17,7 @@ def generate_random_data(
         elif entry.field_type == int:
             data.data[entry.field] = rand_int()
         elif issubclass(entry.field_type, WebsocketData):
-            data.data[entry.field] = generate_random_data(entry.field)
+            print(data.data[entry.field])
+            data.data[entry.field] = generate_random_data(data.data[entry.field])
 
     return data

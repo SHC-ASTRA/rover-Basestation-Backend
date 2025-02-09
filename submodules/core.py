@@ -22,12 +22,12 @@ class Core(Submodule):
 
         self.core_publisher = self.node.create_publisher(
             msg.CoreControl,
-            "/astra/core/controller",
+            "/core/control",
             10,
         )
         self.feedback_subscriber = self.node.create_subscription(
             msg.CoreFeedback,
-            "/astra/core/telemetry",
+            "/core/feedback",
             self.feedback_callback,
             10,
         )
@@ -39,7 +39,7 @@ class Core(Submodule):
             return True
         return False
 
-    def feedback_callback(self, ros_msg: msg.CoreFeedback):
-        self.ws_sender.send(
+    async def feedback_callback(self, ros_msg: msg.CoreFeedback):
+        await self.ws_sender.send(
             websocket_types.CoreFeedbackData.from_ros(ros_msg).to_json()
         )

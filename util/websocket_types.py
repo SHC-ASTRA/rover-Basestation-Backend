@@ -175,8 +175,9 @@ class WebsocketData(ABC, Generic[T]):
                 setattr(
                     ros_data,
                     entry.ros_property,
-                    entry.field_type(self.data[entry.field]).to_ros(),
+                    self.data[entry.field].to_ros(),
                 )
+                continue
 
             setattr(ros_data, entry.ros_property, self.data[entry.field])
 
@@ -338,8 +339,8 @@ class CoreFeedbackData(WebsocketData):
         {
             # fmt: off
             #json_field              ros_prop       field_type
-            ("gps_latitude",         "gpd_lat",     float),
-            ("gps_longitude",        "gps_lon",     float),
+            ("gps_latitude",         "gps_lat",     float),
+            ("gps_longitude",        "gps_long",    float),
             ("gps_satellites",       "gps_sats",    int),
             ("gyroscope",            "bno_gyro",    Vector3Data),
             ("acceleration",         "bno_accel",   Vector3Data),
