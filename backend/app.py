@@ -19,9 +19,6 @@ import rclpy
 from rclpy.executors import MultiThreadedExecutor
 from submodules import Submodule, Core
 
-# Stack inspection
-import inspect
-
 LOG = logging.getLogger(__name__)
 
 routes = web.RouteTableDef()
@@ -33,13 +30,13 @@ async def spin_submodule(submodule: Submodule):
     """Main ROS loop. Spins ROS asynchronously."""
     while rclpy.ok():
         executor = MultiThreadedExecutor()
-        executor.add_node(submodule._node)
+        executor.add_node(submodule.node)
         executor.spin_once(timeout_sec=0)
         await asyncio.sleep(1e-4)
     LOG.info(f"ROS loop exited for {submodule.name}")
 
 
-@routes.get("/api/ws/controller")
+@routes.get("/api/ws")
 async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
     # get the websocket ready to use
     ws = web.WebSocketResponse(heartbeat=3)
@@ -49,38 +46,43 @@ async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
 
     # when we get a message
     async for msg in ws:
-        if msg.data == "close":
+        if msg.type == aiohttp.WSMsgType.CLOSE or msg.data == "close":
             LOG.info(f"websocket connection at ip {request.remote} requested close")
             await ws.close()
             break
 
-        # The websocket is closed or has errored
-        # BREAK out of the FOR and stop processing
-
+        # exit out if the connection errored out
         if msg.type == aiohttp.WSMsgType.ERROR:
             LOG.fatal(
                 f"websocket connection at ip {request.remote} closed with exception {msg.data}"
             )
             break
 
-        # Type checks
-        # If the check is failed, skip this particular message
-        # and CONTINUE to the next message
-
+        # we only accept text messages, so we can just ignore them
         if not (msg.type == aiohttp.WSMsgType.TEXT):
-            LOG.error(
-                f"ControllerData endpoint from {request.remote} with invalid type {msg.type}"
-            )
+            LOG.error(f"{request.remote} sent message with invalid type {msg.type}")
             continue
 
-        # if we got no data, skip the rest
+        # if we got no data, we can ignore the message
         if msg.data is None:
+            LOG.error(f"{request.remote} sent empty message")
             continue
 
-        # Process into controller data
-        websocket_cont_data = websocket_types.ControllerData
+        # process json into a websocket data object
+        websocket_data: websocket_types.WebsocketData
         try:
-            websocket_cont_data = websocket_types.ControllerData(msg.data)
+            json_data = msg.json()
+            data: dict = json_data["data"]
+            msg_type: str = json_data["type"]
+            msg_timestamp: int = json_data["timestamp"]
+
+            # find the correct type to parse the data
+            for t in websocket_types.types:
+                if t.check_type(msg_type):
+                    websocket_data = t.from_dict(
+                        data, msg_type=msg_type, timestamp=msg_timestamp
+                    )
+                    break
         except:
             # There was an error processing the data
             LOG.error(
@@ -91,7 +93,7 @@ async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
 
         # send the data to all submodules, they will handle it if they can
         for submodule in submodules:
-            submodule.handle_ws_msg(websocket_cont_data)
+            submodule.handle_ws_msg(websocket_data)
     return ws
 
 

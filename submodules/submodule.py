@@ -5,11 +5,11 @@ from rclpy.service import Service
 from time import time
 from util.aiohttp_utils import WSSender
 import logging
-from abc import abstractmethod
-from util.websocket_types import WebSocketData
+from abc import ABC, abstractmethod
+from util.websocket_types import WebsocketData
 
 
-class Submodule:
+class Submodule(ABC):
     """
     Class to handle communication between ROS and Websockets.
 
@@ -18,12 +18,11 @@ class Submodule:
     """
 
     name: str
-    _node: Node
+    node: Node
 
-    _ws_sender: WSSender
-    _ws_map: Dict[str, Callable] = {}
+    ws_sender: WSSender
 
-    _ping_server: Service = None
+    _ping_server: Service
     last_ping: float = 0.0
 
     LOG: logging.Logger
@@ -34,17 +33,23 @@ class Submodule:
         name: str,
         ws_sender: WSSender,
     ):
+        self.LOG = logging.getLogger(__name__)
+
         self.LOG.info(f"Initializing node {name}")
         self.name = name
-        self._node = node
-        self._ws_sender = ws_sender
-        self._ping_server = self._node.create_service(
-            Empty, f"/astra/{name}/ping", self.handle_ping
+        self.node = node
+        self.ws_sender = ws_sender
+        self._ping_server = self.node.create_service(
+            Empty, f"/{name}/ping", self.handle_ping
         )
 
-    def handle_ping(self, _: SrvTypeRequest, response: SrvTypeResponse):
+    def handle_ping(
+        self, _: SrvTypeRequest, response: SrvTypeResponse
+    ) -> SrvTypeResponse:
         """
         Handle a ping request.
+
+        TODO: ensure this actually works
 
         :param request: SrvTypeRequest
             The request.
@@ -55,5 +60,7 @@ class Submodule:
         self.LOG.debug(f"Received ping from {self.name}")
         self.last_ping = time()
 
+        return response
+
     @abstractmethod
-    def handle_ws_msg(self, ws_data: WebSocketData): ...
+    def handle_ws_msg(self, ws_data: WebsocketData) -> bool: ...
