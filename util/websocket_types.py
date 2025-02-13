@@ -351,7 +351,6 @@ class CoreFeedbackData(WebsocketData):
             ("voltage_battery",      "bat_voltage", float),
             ("voltage_12v",          "voltage_12",  float),
             ("voltage_5v",           "voltage_5",   float),
-            ("voltage_5v",           "voltage_5",   float),
             ("voltage_3v",           "voltage_3",   float),
             # fmt: on
         }
