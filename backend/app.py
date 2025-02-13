@@ -17,7 +17,7 @@ from util import websocket_types
 # ros things
 import rclpy
 from rclpy.executors import MultiThreadedExecutor
-from submodules import Submodule, Core, Arm
+from submodules import Submodule, Core, Arm, Auto
 
 LOG = logging.getLogger(__name__)
 
@@ -112,8 +112,9 @@ def main():
     # initialize ROS and submodules
     LOG.info("Initializing ROS")
     rclpy.init()
-    submodules.append(Core(rclpy.create_node("core"), ws_connections))
-    submodules.append(Arm(rclpy.create_node("arm"), ws_connections))
+    submodules.append(Core(rclpy.create_node(Core.name), ws_connections))
+    submodules.append(Arm(rclpy.create_node(Arm.name), ws_connections))
+    submodules.append(Auto(rclpy.create_node(Auto.name), ws_connections))
 
     LOG.info("Initializing webserver routes")
 

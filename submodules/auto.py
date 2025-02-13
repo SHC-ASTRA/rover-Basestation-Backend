@@ -1,7 +1,7 @@
 from submodules import Submodule
 
-from interfaces_pkg import msg
-from interfaces_pkg import action
+from ros2_interfaces_pkg import msg
+from ros2_interfaces_pkg import action
 from util.aiohttp_utils import WSSender
 from rclpy.node import Node
 from rclpy.action import ActionClient
@@ -17,15 +17,16 @@ class Auto(Submodule):
     """
 
     LOG = logging.getLogger(__name__)
+    name = "auto"
 
     def __init__(self, node: Node, ws_sender: WSSender):
-        super().__init__(node, "auto", ws_sender)
+        super().__init__(node, ws_sender)
 
-        self.action_server = ActionClient(self.node, action.AutoCommand)
+        self.action_client = ActionClient(self.node, action.AutoCommand, "auto_command")
 
         self.feedback_subscriber = self.node.create_subscription(
             msg.AutoFeedback,
-            "/auto/feedback",
+            f"/{self.name}/feedback",
             self.feedback_callback,
             10,
         )

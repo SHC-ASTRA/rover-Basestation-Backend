@@ -3,7 +3,7 @@ from rclpy.node import Node
 from std_msgs.msg import String
 from util.websocket_types import CoreFeedbackData
 from test import generate_random_data
-from interfaces_pkg import msg
+from ros2_interfaces_pkg import msg
 
 
 class TestPublisher(Node):

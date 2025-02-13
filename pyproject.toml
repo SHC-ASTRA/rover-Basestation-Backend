@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["ryleu <69326171+ryleu@users.noreply.github.com>"]
 packages = [
-    { include = "../interfaces/install/interfaces_pkg/lib/python3.10/site-packages/interfaces_pkg" }
+    { include = "../interfaces/install/ros2_interfaces_pkg/lib/python3.10/site-packages/ros2_interfaces_pkg" }
 ]
 
 [tool.poetry.dependencies]

@@ -2,7 +2,7 @@ from typing import *
 
 import logging
 from abc import ABC
-from interfaces_pkg import msg
+from ros2_interfaces_pkg import msg
 from geometry_msgs.msg import Vector3
 import json
 import datetime
@@ -28,6 +28,10 @@ class SpecField:
     @classmethod
     def build_spec(cls, spec: Set[Tuple[str, str, type]]) -> Set["SpecField"]:
         return {cls(*s) for s in spec}
+
+    @classmethod
+    def build_spec_dict(cls, spec: Dict[str, type]) -> Set["SpecField"]:
+        return {cls(s, s, t) for s, t in spec.items()}
 
 
 class WebsocketData(ABC, Generic[T]):
@@ -191,14 +195,11 @@ class Vector3Data(WebsocketData):
 
     msg_type = "vector3"
     ros_type = Vector3
-    spec = SpecField.build_spec(
+    spec = SpecField.build_spec_dict(
         {
-            # fmt: off
-            #json_field ros_prop field_type
-            ("x",       "x",     float),
-            ("y",       "y",     float),
-            ("z",       "z",     float),
-            # fmt: on
+            "x": float,
+            "y": float,
+            "z": float,
         }
     )
 
@@ -210,13 +211,13 @@ class ArmIKData(WebsocketData):
 
     msg_type = "control:arm/socket_ik"
     ros_type = msg.ArmIK
-    spec = SpecField.build_spec(
+    spec = SpecField.build_spec_dict(
         {
-            ("gripper", "gripper", int),
-            ("linear_actuator", "linear_actuator", int),
-            ("laser", "laser", int),
-            ("effector_roll", "effector_roll", int),
-            ("effector_yaw", "effector_yaw", int),
+            "gripper": int,
+            "linear_actuator": int,
+            "laser": int,
+            "effector_roll": int,
+            "effector_yaw": int,
         }
     )
 
@@ -228,17 +229,17 @@ class ArmManualData(WebsocketData):
 
     msg_type = "control:arm/socket_manual"
     ros_type = msg.ArmManual
-    spec = SpecField.build_spec(
+    spec = SpecField.build_spec_dict(
         {
-            ("axis0", "axis0", int),
-            ("axis1", "axis2", int),
-            ("axis2", "axis2", int),
-            ("axis3", "axis3", int),
-            ("effector_roll", "effector_roll", int),
-            ("effector_yaw", "effector_yaw", int),
-            ("gripper", "gripper", int),
-            ("linear_actuator", "linear_actuator", int),
-            ("laser", "laser", int),
+            "axis0": int,
+            "axis1": int,
+            "axis2": int,
+            "axis3": int,
+            "effector_roll": int,
+            "effector_yaw": int,
+            "gripper": int,
+            "linear_actuator": int,
+            "laser": int,
         }
     )
 
@@ -254,36 +255,27 @@ class ControllerStateData(WebsocketData):
 
     msg_type = "control:controller/"
     ros_type = msg.ControllerState
-    spec = SpecField.build_spec(
+    spec = SpecField.build_spec_dict(
         {
-            # fmt: off
-            #json_field       ros_prop   field_type
-            ("left_trigger",  "lt",      float),
-            ("right_trigger", "rt",      float),
-
-            ("left_bumper",   "lb",      bool),
-            ("right_bumper",  "rb",      bool),
-            
-            ("plus",          "plus",    bool),
-            ("minus",         "minus",   bool),
-
-            ("left_stick_x",  "ls_x",    float),
-            ("left_stick_y",  "ls_y",    float),
-            ("right_stick_x", "rs_x",    float),
-            ("right_stick_y", "rs_y",    float),
-
-            ("a",             "a",       bool),
-            ("b",             "b",       bool),
-            ("x",             "x",       bool),
-            ("y",             "y",       bool),
-
-            ("up",            "d_up",    bool),
-            ("down",          "d_down",  bool),
-            ("left",          "d_left",  bool),
-            ("right",         "d_right", bool),
-
-            ("home",          "home",    bool),
-            # fmt: on
+            "lt": float,
+            "rt": float,
+            "lb": bool,
+            "rb": bool,
+            "plus": bool,
+            "minus": bool,
+            "ls_x": float,
+            "ls_y": float,
+            "rs_x": float,
+            "rs_y": float,
+            "a": bool,
+            "b": bool,
+            "x": bool,
+            "y": bool,
+            "d_up": bool,
+            "d_down": bool,
+            "d_left": bool,
+            "d_right": bool,
+            "home": bool,
         }
     )
 
@@ -295,12 +287,12 @@ class CoreControlData(WebsocketData):
 
     msg_type = "control:core/driving"
     ros_type = msg.CoreControl
-    spec = SpecField.build_spec(
+    spec = SpecField.build_spec_dict(
         {
-            ("left_power", "left_stick", float),
-            ("right_power", "right_stick", float),
-            ("max_speed", "max_speed", int),
-            ("brake", "brake", bool),
+            "left_stick": float,
+            "right_stick": float,
+            "max_speed": int,
+            "brake": bool,
         }
     )
 
@@ -312,18 +304,15 @@ class AutoFeedbackData(WebsocketData):
 
     msg_type = "feedback:core/auto"
     ros_type = msg.AutoFeedback
-    spec = SpecField.build_spec(
+    spec = SpecField.build_spec_dict(
         {
-            # fmt: off
-            #json_field            ros_prop        field_type
-            ("mission_type",       "mission_type", int),
-            ("target_latitude",    "target_lat",   float),
-            ("target_longitude",   "target_long",  float),
-            ("remaining_distance", "distance",     float),
-            ("update",             "update",       str),
-            ("current_job",        "current",      str),
-            ("warning",            "warn",         str),
-            # fmt: on
+            "mission_type": int,
+            "target_lat": float,
+            "target_long": float,
+            "distance": float,
+            "update": str,
+            "current": str,
+            "warn": str,
         }
     )
 
@@ -335,24 +324,21 @@ class CoreFeedbackData(WebsocketData):
 
     msg_type = "feedback:core"
     ros_type = msg.CoreFeedback
-    spec = SpecField.build_spec(
+    spec = SpecField.build_spec_dict(
         {
-            # fmt: off
-            #json_field              ros_prop       field_type
-            ("gps_latitude",         "gps_lat",     float),
-            ("gps_longitude",        "gps_long",    float),
-            ("gps_satellites",       "gps_sats",    int),
-            ("gyroscope",            "bno_gyro",    Vector3Data),
-            ("acceleration",         "bno_accel",   Vector3Data),
-            ("orientation",          "orientation", float),
-            ("temperature",          "bmp_temp",    float),
-            ("altitude",             "bmp_alt",     float),
-            ("atmospheric_pressure", "bmp_pres",    float),
-            ("voltage_battery",      "bat_voltage", float),
-            ("voltage_12v",          "voltage_12",  float),
-            ("voltage_5v",           "voltage_5",   float),
-            ("voltage_3v",           "voltage_3",   float),
-            # fmt: on
+            "gps_lat": float,
+            "gps_long": float,
+            "gps_sats": int,
+            "bno_gyro": Vector3Data,
+            "bno_accel": Vector3Data,
+            "orientation": float,
+            "bmp_temp": float,
+            "bmp_alt": float,
+            "bmp_pres": float,
+            "bat_voltage": float,
+            "voltage_12": float,
+            "voltage_5": float,
+            "voltage_3": float,
         }
     )
 
@@ -364,12 +350,12 @@ class DigitFeedbackData(WebsocketData):
 
     msg_type = "feedback:arm/digit"
     ros_type = msg.DigitFeedback
-    spec = SpecField.build_spec(
+    spec = SpecField.build_spec_dict(
         {
-            ("wrist_angle", "wrist_angle", float),
-            ("voltage_battery", "bat_voltage", float),
-            ("voltage_12v", "voltage_12", float),
-            ("voltage_5v", "voltage_5", float),
+            "wrist_angle": float,
+            "bat_voltage": float,
+            "voltage_12": float,
+            "voltage_5": float,
         }
     )
 
@@ -381,20 +367,20 @@ class FaerieFeedbackData(WebsocketData):
 
     msg_type = "feedback:arm/faerie"
     ros_type = msg.FaerieFeedback
-    spec = SpecField.build_spec(
+    spec = SpecField.build_spec_dict(
         {
-            ("voltage_battery", "bat_voltage", float),
-            ("voltage_12v", "voltage_12", float),
-            ("voltage_5v", "voltage_5", float),
-            ("sht_temperature", "sht_temp", float),
-            ("sht_humidity", "sht_humidity", float),
-            ("lux_1", "lux_1", float),
-            ("lux_2", "lux_2", float),
-            ("lux_3", "lux_3", float),
-            ("lux_4", "lux_4", float),
-            ("lux_5", "lux_5", float),
-            ("lux_6", "lux_6", float),
-            ("lux_7", "lux_7", float),
+            "bat_voltage": float,
+            "voltage_12": float,
+            "voltage_5": float,
+            "sht_temp": float,
+            "sht_humidity": float,
+            "lux_1": float,
+            "lux_2": float,
+            "lux_3": float,
+            "lux_4": float,
+            "lux_5": float,
+            "lux_6": float,
+            "lux_7": float,
         }
     )
 
@@ -406,35 +392,28 @@ class SocketFeedbackData(WebsocketData):
 
     msg_type = "feedback:arm/socket"
     ros_type = msg.SocketFeedback
-    spec = SpecField.build_spec(
+    spec = SpecField.build_spec_dict(
         {
-            # fmt: off
-            #json_field           ros_prop         field_type
-            ("axis0_angle",       "axis0_angle",   float),
-            ("axis0_temperature", "axis0_temp",    float),
-            ("axis0_voltage",     "axis0_voltage", float),
-            ("axis0_current",     "axis0_current", float),
-
-            ("axis1_angle",       "axis1_angle",   float),
-            ("axis1_temperature", "axis1_temp",    float),
-            ("axis1_voltage",     "axis1_voltage", float),
-            ("axis1_current",     "axis1_current", float),
-
-            ("axis2_angle",       "axis2_angle",   float),
-            ("axis2_temperature", "axis2_temp",    float),
-            ("axis2_voltage",     "axis2_voltage", float),
-            ("axis2_current",     "axis2_current", float),
-
-            ("axis3_angle",       "axis3_angle",   float),
-            ("axis3_temperature", "axis3_temp",    float),
-            ("axis3_voltage",     "axis3_voltage", float),
-            ("axis3_current",     "axis3_current", float),
-
-            ("voltage_battery",   "bat_voltage",   float),
-            ("voltage_12v",       "voltage_12",    float),
-            ("voltage_5v",        "voltage_5",     float),
-            ("voltage_3v",        "voltage_3",     float),
-            # fmt: on
+            "axis0_angle": float,
+            "axis0_temp": float,
+            "axis0_voltage": float,
+            "axis0_current": float,
+            "axis1_angle": float,
+            "axis1_temp": float,
+            "axis1_voltage": float,
+            "axis1_current": float,
+            "axis2_angle": float,
+            "axis2_temp": float,
+            "axis2_voltage": float,
+            "axis2_current": float,
+            "axis3_angle": float,
+            "axis3_temp": float,
+            "axis3_voltage": float,
+            "axis3_current": float,
+            "bat_voltage": float,
+            "voltage_12": float,
+            "voltage_5": float,
+            "voltage_3": float,
         }
     )
 

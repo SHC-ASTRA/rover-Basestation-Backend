@@ -1,6 +1,5 @@
 from aiohttp import web
 from typing import *
-from util import websocket_types
 import asyncio
 import logging
 

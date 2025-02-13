@@ -1,7 +1,7 @@
 from submodules import Submodule
 
 # ControllerState & CoreFeedback
-from interfaces_pkg import msg
+from ros2_interfaces_pkg import msg
 from util.aiohttp_utils import WSSender
 from rclpy.node import Node
 import logging
@@ -16,18 +16,19 @@ class Core(Submodule):
     """
 
     LOG = logging.getLogger(__name__)
+    name = "core"
 
     def __init__(self, node: Node, ws_sender: WSSender):
-        super().__init__(node, "core", ws_sender)
+        super().__init__(node, ws_sender)
 
         self.core_publisher = self.node.create_publisher(
             msg.CoreControl,
-            "/core/control",
+            f"/{self.name}/control",
             10,
         )
         self.feedback_subscriber = self.node.create_subscription(
             msg.CoreFeedback,
-            "/core/feedback",
+            f"/{self.name}/feedback",
             self.feedback_callback,
             10,
         )

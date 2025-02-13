@@ -2,7 +2,7 @@ from submodules import Submodule
 
 from typing import *
 
-from interfaces_pkg import msg
+from ros2_interfaces_pkg import msg
 from util.aiohttp_utils import WSSender
 from rclpy.node import Node
 import logging
@@ -16,38 +16,39 @@ class Arm(Submodule):
     """
 
     LOG = logging.getLogger(__name__)
+    name = "arm"
 
     def __init__(self, node: Node, ws_sender: WSSender):
-        super().__init__(node, "arm", ws_sender)
+        super().__init__(node, ws_sender)
 
         # register publishers
         self.ik_publisher = self.node.create_publisher(
             msg.ArmIK,
-            "/arm/control/ik",
+            f"/{self.name}/control/ik",
             10,
         )
         self.manual_publisher = self.node.create_publisher(
             msg.ArmManual,
-            "/arm/control/manual",
+            f"/{self.name}/control/manual",
             10,
         )
 
         # register subscribers
         self.socket_feedback_subscriber = self.node.create_subscription(
             msg.SocketFeedback,
-            "/arm/feedback/socket",
+            f"/{self.name}/feedback/socket",
             self.feedback_callback,
             10,
         )
         self.faerie_feedback_subscriber = self.node.create_subscription(
             msg.FaerieFeedback,
-            "/arm/feedback/faerie",
+            f"/{self.name}/feedback/faerie",
             self.feedback_callback,
             10,
         )
         self.digit_feedback_subscriber = self.node.create_subscription(
             msg.DigitFeedback,
-            "/arm/feedback/digit",
+            f"/{self.name}/feedback/digit",
             self.feedback_callback,
             10,
         )
