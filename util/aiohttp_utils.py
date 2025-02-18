@@ -91,7 +91,7 @@ class WSSender:
             The message to send.
         """
 
-        LOG.debug(f"Sending WS message: {msg}")
+        LOG.debug(f"Sending WS message to {len(self._connections)} clients: {msg}")
 
         # send messages to all connections
         to_remove = set()
