@@ -3,7 +3,7 @@
 # basic stuff
 from typing import *
 import asyncio
-import os
+import traceback
 import logging
 
 # http things
@@ -85,7 +85,7 @@ async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
                     break
         except Exception as e:
             print(msg.data)
-            print(e)
+            print(traceback.format_exc())
             # There was an error processing the data
             LOG.error(
                 f"ControllerData endpoint from {request.remote} with invalid controller data"

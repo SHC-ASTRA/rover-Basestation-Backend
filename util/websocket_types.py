@@ -6,6 +6,7 @@ from ros2_interfaces_pkg import msg
 from geometry_msgs.msg import Vector3
 import json
 import datetime
+from numbers import Number
 
 LOG = logging.getLogger(__name__)
 
@@ -76,6 +77,10 @@ class WebsocketData(ABC, Generic[T]):
             # we can immediately error out of parsing if data is missing
             if entry.field not in data:
                 raise ValueError(f"Field '{entry.field}' missing from input: {data}")
+
+            # TODO: remove this stupid hack
+            if isinstance(data[entry.field], Number) and entry.field_type == float:
+                data[entry.field] = float(data[entry.field])
 
             # check that the type matches the spec
             # this is because the data is technically untrusted, as it comes from the client
