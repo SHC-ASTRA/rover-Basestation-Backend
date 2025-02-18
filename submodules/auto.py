@@ -32,10 +32,7 @@ class Auto(Submodule):
         )
 
     # Process data handling from a websocket and publish it
-    def handle_ws_msg(self, ws_msg: websocket_types.CoreControlData) -> bool:
-        if isinstance(ws_msg, websocket_types.CoreControlData):
-            self.core_publisher.publish(ws_msg.to_ros())
-            return True
+    def handle_ws_msg(self, _) -> bool:
         return False
 
     async def feedback_callback(self, ros_msg: msg.AutoFeedback):
