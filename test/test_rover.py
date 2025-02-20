@@ -2,7 +2,7 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
 from util.websocket_types import CoreFeedbackData
-from test import generate_random_data
+from test import generate_cumulative_data
 from ros2_interfaces_pkg import msg
 
 
@@ -14,7 +14,9 @@ class TestPublisher(Node):
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
     def timer_callback(self):
-        to_send = generate_random_data(CoreFeedbackData.from_ros(msg.CoreFeedback()))
+        to_send = generate_cumulative_data(
+            CoreFeedbackData.from_ros(msg.CoreFeedback())
+        )
         self.publisher_.publish(to_send.to_ros())
         self.get_logger().info('Publishing: "%s"' % to_send.data)
 
