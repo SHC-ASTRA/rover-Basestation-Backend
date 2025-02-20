@@ -214,7 +214,7 @@ class ArmIKData(WebsocketData):
     Arm's Inverse Kinematics control data type.
     """
 
-    msg_type = "control:arm/socket_ik"
+    msg_type = "control:arm/ik"
     ros_type = msg.ArmIK
     spec = SpecField.build_spec_dict(
         {
@@ -232,7 +232,7 @@ class ArmManualData(WebsocketData):
     Arm's Manual control data type.
     """
 
-    msg_type = "control:arm/socket_manual"
+    msg_type = "control:arm/manual"
     ros_type = msg.ArmManual
     spec = SpecField.build_spec_dict(
         {

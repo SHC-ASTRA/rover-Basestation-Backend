@@ -69,7 +69,7 @@ async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
             continue
 
         # process json into a websocket data object
-        websocket_data: websocket_types.WebsocketData
+        websocket_data: Optional[websocket_types.WebsocketData] = None
         try:
             json_data = msg.json()
             data: dict = json_data["data"]
@@ -91,6 +91,12 @@ async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
                 f"ControllerData endpoint from {request.remote} with invalid controller data"
             )
             # Skip ahead to the next message
+            continue
+
+        if websocket_data is None:
+            LOG.error(
+                f"ControllerData endpoint from {request.remote} with invalid controller data"
+            )
             continue
 
         # send the data to all submodules, they will handle it if they can
