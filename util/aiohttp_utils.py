@@ -2,6 +2,7 @@ from aiohttp import web
 from typing import *
 import asyncio
 import logging
+import traceback
 
 LOG = logging.getLogger(__name__)
 
@@ -100,8 +101,12 @@ class WSSender:
             if ws.closed:
                 to_remove.add(ws)
                 continue
-
-            await ws.send_str(msg, self.compress)
+            try:
+                await ws.send_str(msg, self.compress)
+            except Exception as e:
+                print(traceback.format_exc())
+                LOG.error(f"Error sending message to {ws}: {e}")
+                to_remove.add(ws)
 
         # remove closed connections
         for ws in to_remove:
