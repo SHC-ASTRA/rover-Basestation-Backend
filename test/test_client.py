@@ -7,7 +7,7 @@ This file exists for testing purposes, while the frontend is still being worked 
 import asyncio
 import aiohttp
 from typing import *
-from . import generate_random_data
+from .util import generate_random_data
 import logging
 from util import websocket_types
 from ros2_interfaces_pkg.msg import ArmManual

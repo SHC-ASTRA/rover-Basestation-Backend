@@ -1,3 +1,23 @@
-from .util import generate_random_data, generate_cumulative_data
-from .test_client import main as test_client
-from .test_rover import main as test_rover
+import asyncio
+
+
+def launch(func):
+    asyncio.run(func())
+
+
+def test_client():
+    from .test_client import main
+
+    launch(main)
+
+
+def test_rover():
+    from .test_rover import main
+
+    launch(main)
+
+
+def list_types():
+    from .list_types import main
+
+    launch(main)

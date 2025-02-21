@@ -8,6 +8,9 @@ def generate_random_data(
     rand_bool = lambda: random.choice([True, False])
     rand_float = lambda: random.uniform(-1, 1)
     rand_int = lambda: random.randint(-10, 10)
+    rand_string = lambda: "".join(
+        [random.choice("abcdefghijklmnopqrstuvwxyz") for _ in range(6)]
+    )
 
     for entry in data.spec:
         if entry.field_type == bool:
@@ -16,6 +19,8 @@ def generate_random_data(
             data.data[entry.field] = rand_float()
         elif entry.field_type == int:
             data.data[entry.field] = rand_int()
+        elif entry.field_type == str:
+            data.data[entry.field] = rand_string()
         elif issubclass(entry.field_type, WebsocketData):
             print(data.data[entry.field])
             data.data[entry.field] = generate_random_data(data.data[entry.field])
