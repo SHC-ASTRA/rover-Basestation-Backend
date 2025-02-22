@@ -1,3 +1,4 @@
+from typing import *
 from util.websocket_types import WebsocketData
 import random
 
@@ -30,20 +31,20 @@ def generate_random_data(
 
 def generate_cumulative_data(
     data: WebsocketData,
+    int_range: Tuple[int, int] = (0, 10),
+    float_range: Tuple[float, float] = (0, 1),
 ) -> WebsocketData:
     rand_bool = lambda: random.choice([True, False])
-    rand_float = lambda: random.uniform(0, 1)
-    rand_int = lambda: random.randint(0, 10)
+    rand_float = lambda: random.uniform(*float_range)
+    rand_int = lambda: random.randint(*int_range)
 
     for entry in data.spec:
         if entry.field_type == bool:
             data.data[entry.field] = rand_bool()
         elif entry.field_type == float:
-            data.data[entry.field] += (
-                1200 * data.data[entry.field] + rand_float()
-            ) / 100
+            data.data[entry.field] += rand_float()
         elif entry.field_type == int:
-            data.data[entry.field] += int(rand_int() / 10)
+            data.data[entry.field] += rand_int()
         elif issubclass(entry.field_type, WebsocketData):
             print(data.data[entry.field])
             data.data[entry.field] = generate_cumulative_data(data.data[entry.field])

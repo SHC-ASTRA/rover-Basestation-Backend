@@ -46,7 +46,28 @@ class FaerieNode(Node):
 
     def timer_callback(self):
         to_send = generate_cumulative_data(
-            websocket_types.FaerieFeedbackData.from_ros(msg.FaerieFeedback())
+            websocket_types.FaerieFeedbackData.from_ros(msg.FaerieFeedback()),
+            (0, 1),
+            (-0.5, 0.5),
+        )
+        self.publisher_.publish(to_send.to_ros())
+        self.get_logger().info('Publishing: "%s"' % to_send.data)
+
+
+class SocketNode(Node):
+    def __init__(self):
+        super().__init__("test_publisher")
+        self.publisher_ = self.create_publisher(
+            msg.SocketFeedback, "/arm/feedback/socket", 10
+        )
+        timer_period = 1.0  # seconds
+        self.timer = self.create_timer(timer_period, self.timer_callback)
+
+    def timer_callback(self):
+        to_send = generate_cumulative_data(
+            websocket_types.SocketFeedbackData.from_ros(msg.SocketFeedback()),
+            (0, 1),
+            (-1, 1),
         )
         self.publisher_.publish(to_send.to_ros())
         self.get_logger().info('Publishing: "%s"' % to_send.data)
@@ -54,8 +75,9 @@ class FaerieNode(Node):
 
 class NodeEnum(Enum):
     core = CoreNode
-    core_auto = CoreAutoNode
+    auto = CoreAutoNode
     faerie = FaerieNode
+    socket = SocketNode
 
     def __str__(self):
         return self.name
