@@ -214,7 +214,7 @@ class ArmIKData(WebsocketData):
     Arm's Inverse Kinematics control data type.
     """
 
-    msg_type = "control:arm/ik"
+    msg_type = "/arm/control/ik"
     ros_type = msg.ArmIK
     spec = SpecField.build_spec_dict(
         {
@@ -232,7 +232,7 @@ class ArmManualData(WebsocketData):
     Arm's Manual control data type.
     """
 
-    msg_type = "control:arm/manual"
+    msg_type = "/arm/control/manual"
     ros_type = msg.ArmManual
     spec = SpecField.build_spec_dict(
         {
@@ -258,7 +258,7 @@ class ControllerStateData(WebsocketData):
     def check_type(cls, to_check):
         return to_check.startswith(cls.msg_type)
 
-    msg_type = "control:controller/"
+    msg_type = "/basestation/controller"
     ros_type = msg.ControllerState
     spec = SpecField.build_spec_dict(
         {
@@ -290,7 +290,7 @@ class CoreControlData(WebsocketData):
     Core's control data type.
     """
 
-    msg_type = "control:core/driving"
+    msg_type = "/core/control"
     ros_type = msg.CoreControl
     spec = SpecField.build_spec_dict(
         {
@@ -307,7 +307,7 @@ class AutoFeedbackData(WebsocketData):
     Auto's feedback data type.
     """
 
-    msg_type = "feedback:core/auto"
+    msg_type = "/core/auto"
     ros_type = msg.AutoFeedback
     spec = SpecField.build_spec_dict(
         {
@@ -327,7 +327,7 @@ class CoreFeedbackData(WebsocketData):
     Core feedback data type.
     """
 
-    msg_type = "feedback:core"
+    msg_type = "/core/feedback"
     ros_type = msg.CoreFeedback
     spec = SpecField.build_spec_dict(
         {
@@ -353,7 +353,7 @@ class DigitFeedbackData(WebsocketData):
     Digit Feedback data type.
     """
 
-    msg_type = "feedback:arm/digit"
+    msg_type = "/arm/feedback/digit"
     ros_type = msg.DigitFeedback
     spec = SpecField.build_spec_dict(
         {
@@ -370,7 +370,7 @@ class FaerieFeedbackData(WebsocketData):
     Faerie Feedback data type.
     """
 
-    msg_type = "feedback:arm/faerie"
+    msg_type = "/arm/feedback/faerie"
     ros_type = msg.FaerieFeedback
     spec = SpecField.build_spec_dict(
         {
@@ -395,7 +395,7 @@ class SocketFeedbackData(WebsocketData):
     Socket Feedback data type.
     """
 
-    msg_type = "feedback:arm/socket"
+    msg_type = "/arm/feedback/socket"
     ros_type = msg.SocketFeedback
     spec = SpecField.build_spec_dict(
         {

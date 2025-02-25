@@ -6,6 +6,10 @@ from ros2_interfaces_pkg import msg
 from enum import Enum
 import argparse
 
+"""
+This script generates random ROS2 messages and publishes them to a ROS2 topic.
+"""
+
 
 class CoreNode(Node):
     def __init__(self):
@@ -40,7 +44,9 @@ class CoreAutoNode(Node):
 class FaerieNode(Node):
     def __init__(self):
         super().__init__("test_publisher")
-        self.publisher_ = self.create_publisher(msg.FaerieFeedback, "/core/auto", 10)
+        self.publisher_ = self.create_publisher(
+            msg.FaerieFeedback, "/arm/feedback/faerie", 10
+        )
         timer_period = 1.0  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
@@ -48,7 +54,7 @@ class FaerieNode(Node):
         to_send = generate_cumulative_data(
             websocket_types.FaerieFeedbackData.from_ros(msg.FaerieFeedback()),
             (0, 1),
-            (-0.5, 0.5),
+            (0, 255),
         )
         self.publisher_.publish(to_send.to_ros())
         self.get_logger().info('Publishing: "%s"' % to_send.data)
@@ -67,7 +73,7 @@ class SocketNode(Node):
         to_send = generate_cumulative_data(
             websocket_types.SocketFeedbackData.from_ros(msg.SocketFeedback()),
             (0, 1),
-            (-1, 1),
+            (3, 15),
         )
         self.publisher_.publish(to_send.to_ros())
         self.get_logger().info('Publishing: "%s"' % to_send.data)

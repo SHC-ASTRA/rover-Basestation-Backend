@@ -1,7 +1,7 @@
 #!/bin/env python
 
 """
-This file exists for testing purposes, while the frontend is still being worked on.
+This file is used to generate random websocket data and send it to the server.
 """
 
 import asyncio
