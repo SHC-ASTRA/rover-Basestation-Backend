@@ -75,6 +75,15 @@ class SocketNode(Node):
             (0, 1),
             (3, 15),
         )
+        to_send.data["axis0_angle"] = generate_random_angle()
+        to_send.data["axis0_temp"] = generate_random_temp()
+        to_send.data["axis1_angle"] = generate_random_angle()
+        to_send.data["axis1_temp"] = generate_random_temp()
+        to_send.data["axis2_angle"] = generate_random_angle()
+        to_send.data["axis2_temp"] = generate_random_temp()
+        to_send.data["axis3_angle"] = generate_random_angle()
+        to_send.data["axis3_temp"] = generate_random_temp()
+
         self.publisher_.publish(to_send.to_ros())
         self.get_logger().info('Publishing: "%s"' % to_send.data)
 

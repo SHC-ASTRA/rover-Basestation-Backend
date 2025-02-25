@@ -50,3 +50,11 @@ def generate_cumulative_data(
             data.data[entry.field] = generate_cumulative_data(data.data[entry.field])
 
     return data
+
+
+def generate_random_angle() -> float:
+    return random.uniform(-179.9999, 180)
+
+
+def generate_random_temp() -> float:
+    return random.uniform(40, 100)
