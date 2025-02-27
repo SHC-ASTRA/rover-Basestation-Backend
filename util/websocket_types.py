@@ -423,6 +423,30 @@ class SocketFeedbackData(WebsocketData):
     )
 
 
+class BioControlData(WebsocketData):
+    """
+    Bio control data type.
+    """
+
+    msg_type = "/bio/control"
+    ros_type = msg.BioControl
+    spec = SpecField.build_spec_dict(
+        {
+            "pump_id": int,
+            "pump_amount": int,
+            "fan_id": int,
+            "fan_duration": int,
+            "servo_id": int,
+            "servo_position": int,
+            "lss_direction": int,
+            "laser": int,
+            "drill_duty": int,
+            "vibration_motor": int,
+            "drill_shake": int,
+        }
+    )
+
+
 types: Set[WebsocketData] = {
     ArmIKData,
     ArmManualData,
@@ -433,4 +457,5 @@ types: Set[WebsocketData] = {
     DigitFeedbackData,
     FaerieFeedbackData,
     SocketFeedbackData,
+    BioControlData,
 }
