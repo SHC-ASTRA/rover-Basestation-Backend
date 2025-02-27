@@ -18,5 +18,5 @@ To rebuild the protobuf message files into Python, run this command in the root
 of this repo:
 
 ```bash
-protoc --proto_path=proto --python_out=. proto/*.proto
+poetry run build
 ```

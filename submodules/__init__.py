@@ -1,0 +1,6 @@
+# export the classes
+from .submodule import Submodule
+from .core import Core
+from .arm import Arm
+from .auto import Auto
+from .bio import Bio

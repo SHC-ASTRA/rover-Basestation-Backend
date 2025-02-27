@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "src"
+version = "0.1.0"
+description = ""
+authors = ["ryleu <69326171+ryleu@users.noreply.github.com>"]
+packages = [
+    { include = "../interfaces/install/ros2_interfaces_pkg/lib/python3.10/site-packages/ros2_interfaces_pkg" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+aiohttp = "^3.11.11"
+empy = "^3.3.4"
+catkin-pkg = "^1.0.0"
+lark = "^1.2.2"
+coloredlogs = "^15.0.1"
+
+[tool.poetry.group.dev.dependencies]
+pylance = "^0.22.0"
+black = "^24.10.0"
+
+[tool.poetry.scripts]
+start = "backend:start"
+test_client = "test:test_client"
+test_rover = "test:test_rover"
+list_types = "test:list_types"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
