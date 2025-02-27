@@ -440,7 +440,7 @@ class BioControlData(WebsocketData):
             "servo_position": int,
             "lss_direction": int,
             "laser": int,
-            "drill_duty": int,
+            "drill_duty": float,
             "vibration_motor": int,
             "drill_shake": int,
         }
