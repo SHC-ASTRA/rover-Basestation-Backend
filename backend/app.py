@@ -118,10 +118,8 @@ def main():
     # initialize ROS and submodules
     LOG.info("Initializing ROS")
     rclpy.init()
-    submodules.append(Core(rclpy.create_node(Core.name), ws_connections))
-    submodules.append(Arm(rclpy.create_node(Arm.name), ws_connections))
-    submodules.append(Auto(rclpy.create_node(Auto.name), ws_connections))
-    submodules.append(Bio(rclpy.create_node(Bio.name), ws_connections))
+    for node in [Core, Arm, Auto, Bio]:
+        submodules.append(node(rclpy.create_node(f"bs_{node.name}"), ws_connections))
 
     LOG.info("Initializing webserver routes")
 
