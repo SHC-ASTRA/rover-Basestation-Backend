@@ -11,12 +11,12 @@ custom ROS wrapper and there is aiohttp.
 ### aiohttp
 
 Aiohttp is an asynchronous HTTP server for Python. We use it to communicate with
-the frontend. Communication is done over a websocket using protobuf to serialize
-and deserialize data. You can see the protobuf message files in `proto/`.
+the frontend. Communication is done over a websocket using JSON strings.
 
-To rebuild the protobuf message files into Python, run this command in the root
-of this repo:
+## Running
+
+To run the project, use this command:
 
 ```bash
-poetry run build
+uv run start
 ```
