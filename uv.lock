@@ -202,6 +202,15 @@ wheels = [
 ]
 
 [[package]]
+name = "crccheck"
+version = "1.3.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/50/ee/92daff1ca6f8c31f97afe9666efa6d43c74f7ea0415a04ba19300cefef7c/crccheck-1.3.0.tar.gz", hash = "sha256:5384f437de610ade5c3d8689efc80ccd1267b8c452ade83411fd8500a1024f3e", size = 18222 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f4/2f/93f71642e177f0a1d1f392421e314056a2635ca3524b3c57b005cdd995bd/crccheck-1.3.0-py3-none-any.whl", hash = "sha256:278ec53d6f417f197f7e0e29b485093d4879b0bc7a2d29b657ef8242e633b48d", size = 21556 },
+]
+
+[[package]]
 name = "docutils"
 version = "0.21.2"
 source = { registry = "https://pypi.org/simple" }
@@ -673,6 +682,7 @@ dependencies = [
     { name = "aiohttp" },
     { name = "catkin-pkg" },
     { name = "coloredlogs" },
+    { name = "crccheck" },
     { name = "empy" },
     { name = "lark" },
 ]
@@ -688,6 +698,7 @@ requires-dist = [
     { name = "aiohttp", specifier = ">=3.11.11,<4" },
     { name = "catkin-pkg", specifier = ">=1.0.0,<2" },
     { name = "coloredlogs", specifier = ">=15.0.1,<16" },
+    { name = "crccheck", specifier = ">=1.3.0" },
     { name = "empy", specifier = ">=3.3.4,<4" },
     { name = "lark", specifier = ">=1.2.2,<2" },
 ]
