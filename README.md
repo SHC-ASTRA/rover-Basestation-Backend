@@ -18,5 +18,5 @@ the frontend. Communication is done over a websocket using JSON strings.
 To run the project, use this command:
 
 ```bash
-uv run start
+poetry run start
 ```
