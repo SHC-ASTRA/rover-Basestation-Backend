@@ -95,7 +95,9 @@ class WebsocketData(ABC, Generic[T]):
         # warn for any extra fields
         for field in data.keys():
             if field not in [spec.field for spec in self.spec]:
-                LOG.warning(f"Field '{field}' not in spec for {self.__name__}!")
+                LOG.warning(
+                    f"Field '{field}' not in spec for {self.msg_type if self.msg_type else 'unknown'}!"
+                )
 
     @classmethod
     def from_dict(
@@ -218,6 +220,7 @@ class ArmIKData(WebsocketData):
     ros_type = msg.ArmIK
     spec = SpecField.build_spec_dict(
         {
+            "movement_vector": Vector3Data,
             "gripper": int,
             "linear_actuator": int,
             "laser": int,
