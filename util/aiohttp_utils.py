@@ -18,7 +18,7 @@ def file_route(table: web.RouteTableDef, route: str, path: str):
     :param path: str
         The path to the file to serve.
     """
-    LOG.debug(f"registered file route {route} -> {path}")
+    LOG.info(f"registered file route {route} -> {path}")
 
     @table.get(route)
     def _inner(_: web.BaseRequest) -> web.FileResponse:
@@ -92,7 +92,7 @@ class WSSender:
             The message to send.
         """
 
-        LOG.debug(f"Sending WS message to {len(self._connections)} clients: {msg}")
+        # LOG.debug(f"Sending WS message to {len(self._connections)} clients: {msg}")
 
         # send messages to all connections
         to_remove = set()

@@ -29,7 +29,10 @@ class Bio(Submodule):
         )
 
     def handle_ws_msg(self, ws_data: websocket_types.WebsocketData) -> bool:
-        if isinstance(ws_data, websocket_types.BioControlData):
+        if (
+            isinstance(ws_data, websocket_types.BioControlData)
+            and self.publisher.get_subscription_count() > 0
+        ):
             self.publisher.publish(ws_data.to_ros())
             return True
         return False

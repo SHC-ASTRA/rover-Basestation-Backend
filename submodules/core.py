@@ -35,7 +35,10 @@ class Core(Submodule):
 
     # Process data handling from a websocket and publish it
     def handle_ws_msg(self, ws_msg: websocket_types.CoreControlData) -> bool:
-        if isinstance(ws_msg, websocket_types.CoreControlData):
+        if (
+            isinstance(ws_msg, websocket_types.CoreControlData)
+            and self.core_publisher.get_subscription_count() > 0
+        ):
             self.core_publisher.publish(ws_msg.to_ros())
             return True
         return False

@@ -25,12 +25,12 @@ class Arm(Submodule):
         self.ik_publisher = self.node.create_publisher(
             msg.ArmIK,
             f"/{self.name}/control/ik",
-            10,
+            1,
         )
         self.manual_publisher = self.node.create_publisher(
             msg.ArmManual,
             f"/{self.name}/control/manual",
-            10,
+            1,
         )
 
         # register subscribers
@@ -38,26 +38,32 @@ class Arm(Submodule):
             msg.SocketFeedback,
             f"/{self.name}/feedback/socket",
             self.feedback_callback,
-            10,
+            1,
         )
         self.faerie_feedback_subscriber = self.node.create_subscription(
             msg.FaerieFeedback,
             f"/{self.name}/feedback/faerie",
             self.feedback_callback,
-            10,
+            1,
         )
         self.digit_feedback_subscriber = self.node.create_subscription(
             msg.DigitFeedback,
             f"/{self.name}/feedback/digit",
             self.feedback_callback,
-            10,
+            1,
         )
 
     def handle_ws_msg(self, ws_data: websocket_types.WebsocketData) -> bool:
-        if isinstance(ws_data, websocket_types.ArmIKData):
+        if (
+            isinstance(ws_data, websocket_types.ArmIKData)
+            and self.ik_publisher.get_subscription_count() > 0
+        ):
             self.ik_publisher.publish(ws_data.to_ros())
             return True
-        elif isinstance(ws_data, websocket_types.ArmManualData):
+        elif (
+            isinstance(ws_data, websocket_types.ArmManualData)
+            and self.manual_publisher.get_subscription_count() > 0
+        ):
             self.manual_publisher.publish(ws_data.to_ros())
             return True
         return False
