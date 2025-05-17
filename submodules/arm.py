@@ -40,9 +40,9 @@ class Arm(Submodule):
             self.feedback_callback,
             1,
         )
-        self.faerie_feedback_subscriber = self.node.create_subscription(
-            msg.FaerieFeedback,
-            f"/{self.name}/feedback/faerie",
+        self.bio_feedback_subscriber = self.node.create_subscription(
+            msg.BioFeedback,
+            f"/{self.name}/feedback",
             self.feedback_callback,
             1,
         )
@@ -69,16 +69,16 @@ class Arm(Submodule):
         return False
 
     async def feedback_callback(
-        self, ros_data: Union[msg.SocketFeedback, msg.FaerieFeedback, msg.DigitFeedback]
+        self, ros_data: Union[msg.SocketFeedback, msg.BioFeedback, msg.DigitFeedback]
     ):
         match type(ros_data):
             case msg.SocketFeedback:
                 await self.ws_sender.send(
                     websocket_types.SocketFeedbackData.from_ros(ros_data).to_json()
                 )
-            case msg.FaerieFeedback:
+            case msg.BioFeedback:
                 await self.ws_sender.send(
-                    websocket_types.FaerieFeedbackData.from_ros(ros_data).to_json()
+                    websocket_types.BioFeedbackData.from_ros(ros_data).to_json()
                 )
             case msg.DigitFeedback:
                 await self.ws_sender.send(

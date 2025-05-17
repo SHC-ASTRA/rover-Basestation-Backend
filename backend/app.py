@@ -38,9 +38,6 @@ async def spin_loop(executor: MultiThreadedExecutor):
     LOG.info(f"ROS loop exited")
 
 
-message_histories: Dict[str, float] = {}
-
-
 @routes.get("/api/ws")
 async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
     # get the websocket ready to use
@@ -89,27 +86,15 @@ async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
                     )
                     break
         except Exception as e:
-            print(msg.data)
             print(traceback.format_exc())
             # There was an error processing the data
-            LOG.error(
-                f"ControllerData endpoint from {request.remote} with invalid controller data"
-            )
+            LOG.error(f"Websocket message from {request.remote} with invalid data")
             # Skip ahead to the next message
             continue
 
         if websocket_data is None:
-            LOG.error(
-                f"ControllerData endpoint from {request.remote} with invalid controller data"
-            )
+            LOG.error(f"Websocket message from {request.remote} with empty data")
             continue
-
-        now = time.time()
-
-        if now - message_histories.get(websocket_data.msg_type, 0) < 0.03:
-            continue
-
-        message_histories[websocket_data.msg_type] = now
 
         # send the data to all submodules, they will handle it if they can
         for submodule in submodules:
@@ -135,7 +120,6 @@ def main():
         submodule = node(rclpy.create_node(f"bs_{node.name}"), ws_connections)
         submodules.append(submodule)
         executor.add_node(submodule.node)
-        LOG.info("Registered submodule {submodule.name}")
 
     LOG.info("Initializing webserver routes")
 

@@ -52,7 +52,7 @@ class FaerieNode(Node):
 
     def timer_callback(self):
         to_send = generate_cumulative_data(
-            websocket_types.FaerieFeedbackData.from_ros(msg.FaerieFeedback()),
+            websocket_types.BioFeedbackData.from_ros(msg.FaerieFeedback()),
             (0, 1),
             (0, 255),
         )

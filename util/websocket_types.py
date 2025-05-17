@@ -368,27 +368,20 @@ class DigitFeedbackData(WebsocketData):
     )
 
 
-class FaerieFeedbackData(WebsocketData):
+class BioFeedbackData(WebsocketData):
     """
-    Faerie Feedback data type.
+    Bio Feedback data type.
     """
 
-    msg_type = "/arm/feedback/faerie"
-    ros_type = msg.FaerieFeedback
+    msg_type = "/arm/feedback"
+    ros_type = msg.BioFeedback
     spec = SpecField.build_spec_dict(
         {
             "bat_voltage": float,
             "voltage_12": float,
             "voltage_5": float,
-            "sht_temp": float,
-            "sht_humidity": float,
-            "lux_1": float,
-            "lux_2": float,
-            "lux_3": float,
-            "lux_4": float,
-            "lux_5": float,
-            "lux_6": float,
-            "lux_7": float,
+            "drill_temp": float,
+            "drill_humidity": float,
         }
     )
 
@@ -439,13 +432,12 @@ class BioControlData(WebsocketData):
             "pump_amount": int,
             "fan_id": int,
             "fan_duration": int,
-            "servo_id": int,
             "servo_position": int,
-            "lss_direction": int,
+            "bio_arm": int,
             "laser": int,
-            "drill_duty": float,
+            "drill": int,
+            "drill_arm": int,
             "vibration_motor": int,
-            "drill_shake": int,
         }
     )
 
@@ -458,7 +450,7 @@ types: Set[WebsocketData] = {
     AutoFeedbackData,
     CoreFeedbackData,
     DigitFeedbackData,
-    FaerieFeedbackData,
+    BioFeedbackData,
     SocketFeedbackData,
     BioControlData,
 }
