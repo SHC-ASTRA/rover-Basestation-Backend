@@ -18,6 +18,7 @@ from util import websocket_types
 import rclpy
 from rclpy.executors import MultiThreadedExecutor
 from submodules import Submodule, Core, Arm, Auto, Bio
+import time
 
 LOG = logging.getLogger(__name__)
 
@@ -25,15 +26,19 @@ routes = web.RouteTableDef()
 ws_connections = aiohttp_utils.WSSender()
 submodules: List[Submodule] = list()
 
+executor: MultiThreadedExecutor
 
-async def spin_submodule(submodule: Submodule):
+
+async def spin_loop(executor: MultiThreadedExecutor):
     """Main ROS loop. Spins ROS asynchronously."""
     while rclpy.ok():
-        executor = MultiThreadedExecutor()
-        executor.add_node(submodule.node)
         executor.spin_once(timeout_sec=0)
         await asyncio.sleep(1e-4)
-    LOG.info(f"ROS loop exited for {submodule.name}")
+
+    LOG.info(f"ROS loop exited")
+
+
+message_histories: Dict[str, float] = {}
 
 
 @routes.get("/api/ws")
@@ -42,7 +47,7 @@ async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
     ws = web.WebSocketResponse(heartbeat=3)
     await ws.prepare(request)
     ws_connections.add(ws)
-    LOG.debug(f"websocket connected at ip {request.remote}")
+    LOG.info(f"websocket connected at ip {request.remote}")
 
     # when we get a message
     async for msg in ws:
@@ -99,6 +104,13 @@ async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
             )
             continue
 
+        now = time.time()
+
+        if now - message_histories.get(websocket_data.msg_type, 0) < 0.03:
+            continue
+
+        message_histories[websocket_data.msg_type] = now
+
         # send the data to all submodules, they will handle it if they can
         for submodule in submodules:
             submodule.handle_ws_msg(websocket_data)
@@ -118,15 +130,18 @@ def main():
     # initialize ROS and submodules
     LOG.info("Initializing ROS")
     rclpy.init()
+    executor = MultiThreadedExecutor()
     for node in [Core, Arm, Auto, Bio]:
-        submodules.append(node(rclpy.create_node(f"bs_{node.name}"), ws_connections))
+        submodule = node(rclpy.create_node(f"bs_{node.name}"), ws_connections)
+        submodules.append(submodule)
+        executor.add_node(submodule.node)
+        LOG.info("Registered submodule {submodule.name}")
 
     LOG.info("Initializing webserver routes")
 
     loop = asyncio.get_event_loop()
     future = asyncio.wait(
-        [spin_submodule(submodule) for submodule in submodules]
-        + [start_webserver(), ws_connections.loop()],
+        [spin_loop(executor), start_webserver(), ws_connections.loop()],
         return_when=asyncio.FIRST_EXCEPTION,
     )
     try:
