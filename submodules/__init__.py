@@ -4,3 +4,4 @@ from .core import Core
 from .arm import Arm
 from .auto import Auto
 from .bio import Bio
+from .antenna import Antenna
