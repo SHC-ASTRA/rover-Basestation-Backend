@@ -5,6 +5,7 @@ from .util import *
 from ros2_interfaces_pkg import msg
 from enum import Enum
 import argparse
+from asyncio import run
 
 """
 This script generates random ROS2 messages and publishes them to a ROS2 topic.
@@ -125,3 +126,7 @@ async def main(args=None):
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
+
+
+if __name__ == "__main__":
+    run(main())
