@@ -35,7 +35,7 @@ class Antenna(Submodule):
             except Exception as e:
                 self.LOG.error(f"Error in UDP message sender task: {e}", exc_info=True)
 
-    async def send_udp_message(self, message, host="127.0.0.1", port=42069):
+    async def send_udp_message(self, message, host="192.168.1.4", port=42069):
         loop = get_running_loop()
         transport, _ = await loop.create_datagram_endpoint(
             lambda: DatagramProtocol(), remote_addr=(host, port)
