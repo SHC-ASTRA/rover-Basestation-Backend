@@ -4,7 +4,6 @@ from ros2_interfaces_pkg import msg
 from ros2_interfaces_pkg import action
 from util.aiohttp_utils import WSSender
 from rclpy.node import Node
-from rclpy.action import ActionClient
 import logging
 
 # Websocket data handling
@@ -22,7 +21,11 @@ class Auto(Submodule):
     def __init__(self, node: Node, ws_sender: WSSender):
         super().__init__(node, ws_sender)
 
-        self.action_client = ActionClient(self.node, action.AutoCommand, "auto_command")
+        self.auto_command = self.node.create_publisher(
+            msg.AutoFeedback,
+            f"/{self.name}/control",
+            10,
+        )
 
         self.feedback_subscriber = self.node.create_subscription(
             msg.AutoFeedback,
@@ -32,7 +35,10 @@ class Auto(Submodule):
         )
 
     # Process data handling from a websocket and publish it
-    def handle_ws_msg(self, _) -> bool:
+    def handle_ws_msg(self, ws_msg: websocket_types.AutoCommandData) -> bool:
+        if isinstance(ws_msg, websocket_types.AutoCommandData):
+            self.auto_command.publish(ws_msg.to_ros())
+            return True
         return False
 
     async def feedback_callback(self, ros_msg: msg.AutoFeedback):

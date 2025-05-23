@@ -310,7 +310,7 @@ class AutoFeedbackData(WebsocketData):
     Auto's feedback data type.
     """
 
-    msg_type = "/core/auto"
+    msg_type = "/auto/feedback"
     ros_type = msg.AutoFeedback
     spec = SpecField.build_spec_dict(
         {
@@ -450,6 +450,26 @@ class BioControlData(WebsocketData):
     )
 
 
+class AutoCommandData(WebsocketData):
+    """
+    Auto Command data type.
+    """
+
+    msg_type = "/auto/control"
+    ros_type = msg.AutoFeedback
+    spec = SpecField.build_spec_dict(
+        {
+            "mission_type": int,
+            "target_lat": float,
+            "target_long": float,
+            "distance": float,
+            "update": str,
+            "current": str,
+            "warn": str,
+        }
+    )
+
+
 types: Set[WebsocketData] = {
     ArmIKData,
     ArmManualData,
@@ -461,4 +481,5 @@ types: Set[WebsocketData] = {
     FaerieFeedbackData,
     SocketFeedbackData,
     BioControlData,
+    AutoCommandData,
 }
