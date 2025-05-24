@@ -16,9 +16,9 @@ dependencies = [
 
 [project.scripts]
 start = "backend:start"
-test_client = "test:test_client"
-test_rover = "test:test_rover"
-list_types = "test:list_types"
+test_client = "tests:test_client"
+test_rover = "tests:test_rover"
+list_types = "tests:list_types"
 
 [dependency-groups]
 dev = [

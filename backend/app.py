@@ -17,7 +17,7 @@ from util import websocket_types
 # ros things
 import rclpy
 from rclpy.executors import MultiThreadedExecutor
-from submodules import Submodule, Core, Arm, Auto, Bio
+from submodules import Submodule, Core, Arm, Auto, Bio, Antenna
 import time
 
 LOG = logging.getLogger(__name__)
@@ -121,11 +121,27 @@ def main():
         submodules.append(submodule)
         executor.add_node(submodule.node)
 
+    data_provider: Callable[[None], str | None] = None
+    for submodule in submodules:
+        if isinstance(submodule, Core):
+            data_provider = lambda: submodule.last_sat
+            break
+    if data_provider is None:
+        raise RuntimeError("No Core submodule found")
+
+    antenna = Antenna(ws_connections, data_provider)
+    submodules.append(antenna)
+
     LOG.info("Initializing webserver routes")
 
     loop = asyncio.get_event_loop()
     future = asyncio.wait(
-        [spin_loop(executor), start_webserver(), ws_connections.loop()],
+        [
+            spin_loop(executor),
+            start_webserver(),
+            ws_connections.loop(),
+            antenna.send_udp_message_task(),
+        ],
         return_when=asyncio.FIRST_EXCEPTION,
     )
     try:

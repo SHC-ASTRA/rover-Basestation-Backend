@@ -5,6 +5,8 @@ from .util import *
 from ros2_interfaces_pkg import msg
 from enum import Enum
 import argparse
+from asyncio import run
+import random
 
 """
 This script generates random ROS2 messages and publishes them to a ROS2 topic.
@@ -22,6 +24,10 @@ class CoreNode(Node):
         to_send = generate_cumulative_data(
             websocket_types.CoreFeedbackData.from_ros(msg.CoreFeedback())
         )
+        to_send.data["gps_lat"] = random.uniform(38, 39)
+        to_send.data["gps_long"] = random.uniform(-110, -111)
+        to_send.data["orientation"] = random.uniform(-180, 180)
+
         self.publisher_.publish(to_send.to_ros())
         self.get_logger().info('Publishing: "%s"' % to_send.data)
 
@@ -37,6 +43,11 @@ class CoreAutoNode(Node):
         to_send = generate_random_data(
             websocket_types.AutoFeedbackData.from_ros(msg.AutoFeedback())
         )
+        # get a random coord near where the mars desert research station is
+        to_send.data["target_lat"] = random.uniform(38, 39)
+        to_send.data["target_long"] = random.uniform(-110, -111)
+        to_send.data["orientation"] = random.uniform(-180, 180)
+
         self.publisher_.publish(to_send.to_ros())
         self.get_logger().info('Publishing: "%s"' % to_send.data)
 
@@ -125,3 +136,7 @@ async def main(args=None):
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
+
+
+if __name__ == "__main__":
+    run(main())
