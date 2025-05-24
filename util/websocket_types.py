@@ -301,6 +301,9 @@ class CoreControlData(WebsocketData):
             "right_stick": float,
             "max_speed": int,
             "brake": bool,
+            "turn_to_enable": bool,
+            "turn_to": float,
+            "turn_to_timeout": float,
         }
     )
 
@@ -340,6 +343,7 @@ class CoreFeedbackData(WebsocketData):
             "bno_gyro": Vector3Data,
             "bno_accel": Vector3Data,
             "orientation": float,
+            "imu_calib": int,
             "bmp_temp": float,
             "bmp_alt": float,
             "bmp_pres": float,
@@ -373,7 +377,7 @@ class BioFeedbackData(WebsocketData):
     Bio Feedback data type.
     """
 
-    msg_type = "/arm/feedback"
+    msg_type = "/bio/feedback"
     ros_type = msg.BioFeedback
     spec = SpecField.build_spec_dict(
         {
