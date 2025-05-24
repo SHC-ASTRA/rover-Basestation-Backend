@@ -18,7 +18,7 @@ class Submodule(ABC):
     """
 
     name: str
-    node: Node
+    node: Node | None
 
     ws_sender: WSSender
 
@@ -29,17 +29,18 @@ class Submodule(ABC):
 
     def __init__(
         self,
-        node: Node,
+        node: Node | None,
         ws_sender: WSSender,
     ):
         self.LOG = logging.getLogger(__name__)
 
-        self.LOG.info(f"Initializing node {self.name}")
         self.node = node
         self.ws_sender = ws_sender
-        self._ping_server = self.node.create_service(
-            Empty, f"/{self.name}/ping", self.handle_ping
-        )
+        if node:
+            self.LOG.info(f"Initializing node {self.name}")
+            self._ping_server = self.node.create_service(
+                Empty, f"/{self.name}/ping", self.handle_ping
+            )
 
     def handle_ping(
         self, _: SrvTypeRequest, response: SrvTypeResponse

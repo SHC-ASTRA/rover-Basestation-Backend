@@ -18,6 +18,8 @@ class Core(Submodule):
     LOG = logging.getLogger(__name__)
     name = "core"
 
+    last_sat: str | None = None
+
     def __init__(self, node: Node, ws_sender: WSSender):
         super().__init__(node, ws_sender)
 
@@ -44,6 +46,10 @@ class Core(Submodule):
         return False
 
     async def feedback_callback(self, ros_msg: msg.CoreFeedback):
-        await self.ws_sender.send(
-            websocket_types.CoreFeedbackData.from_ros(ros_msg).to_json()
+        msg: websocket_types.CoreFeedbackData = (
+            websocket_types.CoreFeedbackData.from_ros(ros_msg)
         )
+        gps_lat = msg.data["gps_lat"]
+        gps_long = msg.data["gps_long"]
+        self.last_sat = f"{gps_lat:.7f},{gps_long:.7f}\n"
+        await self.ws_sender.send(msg.to_json())
