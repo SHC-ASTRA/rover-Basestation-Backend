@@ -44,8 +44,8 @@ class CoreAutoNode(Node):
             websocket_types.AutoFeedbackData.from_ros(msg.AutoFeedback())
         )
         # get a random coord near where the mars desert research station is
-        to_send.data["gps_lat"] = random.uniform(38, 39)
-        to_send.data["gps_long"] = random.uniform(-110, -111)
+        to_send.data["target_lat"] = random.uniform(38, 39)
+        to_send.data["target_long"] = random.uniform(-110, -111)
         to_send.data["orientation"] = random.uniform(-180, 180)
 
         self.publisher_.publish(to_send.to_ros())
