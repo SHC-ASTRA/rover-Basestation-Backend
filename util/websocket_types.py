@@ -4,6 +4,7 @@ import logging
 from abc import ABC
 from ros2_interfaces_pkg import msg
 from geometry_msgs.msg import Vector3
+from std_msgs.msg import String
 import json
 import datetime
 from numbers import Number
@@ -446,6 +447,16 @@ class BioControlData(WebsocketData):
     )
 
 
+class AnchorRelayData(WebsocketData):
+    """
+    Anchor control data type.
+    """
+
+    msg_type = "/anchor/relay"
+    ros_type = String
+    spec = SpecField.build_spec_dict({"data": str})
+
+
 types: Set[WebsocketData] = {
     ArmIKData,
     ArmManualData,
@@ -457,4 +468,5 @@ types: Set[WebsocketData] = {
     BioFeedbackData,
     SocketFeedbackData,
     BioControlData,
+    AnchorRelayData,
 }

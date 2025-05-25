@@ -17,7 +17,7 @@ from util import websocket_types
 # ros things
 import rclpy
 from rclpy.executors import MultiThreadedExecutor
-from submodules import Submodule, Core, Arm, Auto, Bio, Antenna
+from submodules import Submodule, Core, Arm, Auto, Bio, Antenna, Anchor
 import time
 
 LOG = logging.getLogger(__name__)
@@ -48,6 +48,8 @@ async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
 
     # when we get a message
     async for msg in ws:
+        LOG.debug(f"websocket message from {request.remote}: {msg.data}")
+
         if msg.type == aiohttp.WSMsgType.CLOSE or msg.data == "close":
             LOG.info(f"websocket connection at ip {request.remote} requested close")
             await ws.close()
@@ -116,7 +118,7 @@ def main():
     LOG.info("Initializing ROS")
     rclpy.init()
     executor = MultiThreadedExecutor()
-    for node in [Core, Arm, Auto, Bio]:
+    for node in [Core, Arm, Auto, Bio, Anchor]:
         submodule = node(rclpy.create_node(f"bs_{node.name}"), ws_connections)
         submodules.append(submodule)
         executor.add_node(submodule.node)
