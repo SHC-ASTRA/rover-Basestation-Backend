@@ -314,7 +314,7 @@ class AutoFeedbackData(WebsocketData):
     Auto's feedback data type.
     """
 
-    msg_type = "/core/auto"
+    msg_type = "/auto/feedback"
     ros_type = msg.AutoFeedback
     spec = SpecField.build_spec_dict(
         {
@@ -437,7 +437,8 @@ class BioControlData(WebsocketData):
             "pump_amount": int,
             "fan_id": int,
             "fan_duration": int,
-            "servo_position": int,
+            "servo_id": int,
+            "servo_state": bool,
             "bio_arm": int,
             "laser": int,
             "drill": int,
