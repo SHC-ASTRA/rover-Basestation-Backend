@@ -28,6 +28,13 @@ class Bio(Submodule):
             10,
         )
 
+        self.feedback_subscriber = self.node.create_subscription(
+            msg.BioFeedback,
+            f"/{self.name}/feedback",
+            self.feedback_callback,
+            10,
+        )
+
     def handle_ws_msg(self, ws_data: websocket_types.WebsocketData) -> bool:
         if (
             isinstance(ws_data, websocket_types.BioControlData)
@@ -36,3 +43,8 @@ class Bio(Submodule):
             self.publisher.publish(ws_data.to_ros())
             return True
         return False
+
+    async def feedback_callback(self, ros_msg: msg.BioFeedback):
+        await self.ws_sender.send(
+            websocket_types.BioFeedbackData.from_ros(ros_msg).to_json()
+        )
