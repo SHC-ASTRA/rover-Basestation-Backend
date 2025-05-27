@@ -32,10 +32,10 @@ class CoreNode(Node):
         self.get_logger().info('Publishing: "%s"' % to_send.data)
 
 
-class CoreAutoNode(Node):
+class AutoNode(Node):
     def __init__(self):
         super().__init__("test_publisher")
-        self.publisher_ = self.create_publisher(msg.AutoFeedback, "/core/auto", 10)
+        self.publisher_ = self.create_publisher(msg.AutoFeedback, "/auto/feedback", 10)
         timer_period = 1.0  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
@@ -52,18 +52,16 @@ class CoreAutoNode(Node):
         self.get_logger().info('Publishing: "%s"' % to_send.data)
 
 
-class FaerieNode(Node):
+class BioNode(Node):
     def __init__(self):
         super().__init__("test_publisher")
-        self.publisher_ = self.create_publisher(
-            msg.FaerieFeedback, "/arm/feedback/faerie", 10
-        )
+        self.publisher_ = self.create_publisher(msg.BioFeedback, "/bio/feedback", 10)
         timer_period = 1.0  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
     def timer_callback(self):
         to_send = generate_cumulative_data(
-            websocket_types.FaerieFeedbackData.from_ros(msg.FaerieFeedback()),
+            websocket_types.BioFeedbackData.from_ros(msg.BioFeedback()),
             (0, 1),
             (0, 255),
         )
@@ -101,8 +99,8 @@ class SocketNode(Node):
 
 class NodeEnum(Enum):
     core = CoreNode
-    auto = CoreAutoNode
-    faerie = FaerieNode
+    auto = AutoNode
+    bio = BioNode
     socket = SocketNode
 
     def __str__(self):

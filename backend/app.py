@@ -17,8 +17,7 @@ from util import websocket_types
 # ros things
 import rclpy
 from rclpy.executors import MultiThreadedExecutor
-from submodules import Submodule, Core, Arm, Auto, Bio, Antenna
-import time
+from submodules import Submodule, Core, Arm, Auto, Bio, Antenna, Anchor, Ptz
 
 LOG = logging.getLogger(__name__)
 
@@ -38,9 +37,6 @@ async def spin_loop(executor: MultiThreadedExecutor):
     LOG.info(f"ROS loop exited")
 
 
-message_histories: Dict[str, float] = {}
-
-
 @routes.get("/api/ws")
 async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
     # get the websocket ready to use
@@ -51,6 +47,8 @@ async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
 
     # when we get a message
     async for msg in ws:
+        LOG.debug(f"websocket message from {request.remote}: {msg.data}")
+
         if msg.type == aiohttp.WSMsgType.CLOSE or msg.data == "close":
             LOG.info(f"websocket connection at ip {request.remote} requested close")
             await ws.close()
@@ -77,6 +75,7 @@ async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
         websocket_data: Optional[websocket_types.WebsocketData] = None
         try:
             json_data = msg.json()
+            LOG.debug(f"websocket message from {request.remote} with data: {json_data}")
             data: dict = json_data["data"]
             msg_type: str = json_data["type"]
             msg_timestamp: int = json_data["timestamp"]
@@ -89,27 +88,17 @@ async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
                     )
                     break
         except Exception as e:
-            print(msg.data)
             print(traceback.format_exc())
             # There was an error processing the data
-            LOG.error(
-                f"ControllerData endpoint from {request.remote} with invalid controller data"
-            )
+            LOG.error(f"Websocket message from {request.remote} with invalid data")
             # Skip ahead to the next message
             continue
 
         if websocket_data is None:
             LOG.error(
-                f"ControllerData endpoint from {request.remote} with invalid controller data"
+                f"Websocket message from {request.remote} with invalid type {msg_type}"
             )
             continue
-
-        now = time.time()
-
-        if now - message_histories.get(websocket_data.msg_type, 0) < 0.03:
-            continue
-
-        message_histories[websocket_data.msg_type] = now
 
         # send the data to all submodules, they will handle it if they can
         for submodule in submodules:
@@ -131,7 +120,7 @@ def main():
     LOG.info("Initializing ROS")
     rclpy.init()
     executor = MultiThreadedExecutor()
-    for node in [Core, Arm, Auto, Bio]:
+    for node in [Core, Arm, Auto, Bio, Anchor, Ptz]:
         submodule = node(rclpy.create_node(f"bs_{node.name}"), ws_connections)
         submodules.append(submodule)
         executor.add_node(submodule.node)

@@ -4,6 +4,7 @@ import logging
 from abc import ABC
 from ros2_interfaces_pkg import msg
 from geometry_msgs.msg import Vector3
+from std_msgs.msg import String
 import json
 import datetime
 from numbers import Number
@@ -301,6 +302,9 @@ class CoreControlData(WebsocketData):
             "right_stick": float,
             "max_speed": int,
             "brake": bool,
+            "turn_to_enable": bool,
+            "turn_to": float,
+            "turn_to_timeout": float,
         }
     )
 
@@ -310,7 +314,7 @@ class AutoFeedbackData(WebsocketData):
     Auto's feedback data type.
     """
 
-    msg_type = "/core/auto"
+    msg_type = "/auto/feedback"
     ros_type = msg.AutoFeedback
     spec = SpecField.build_spec_dict(
         {
@@ -340,6 +344,7 @@ class CoreFeedbackData(WebsocketData):
             "bno_gyro": Vector3Data,
             "bno_accel": Vector3Data,
             "orientation": float,
+            "imu_calib": int,
             "bmp_temp": float,
             "bmp_alt": float,
             "bmp_pres": float,
@@ -368,27 +373,20 @@ class DigitFeedbackData(WebsocketData):
     )
 
 
-class FaerieFeedbackData(WebsocketData):
+class BioFeedbackData(WebsocketData):
     """
-    Faerie Feedback data type.
+    Bio Feedback data type.
     """
 
-    msg_type = "/arm/feedback/faerie"
-    ros_type = msg.FaerieFeedback
+    msg_type = "/bio/feedback"
+    ros_type = msg.BioFeedback
     spec = SpecField.build_spec_dict(
         {
             "bat_voltage": float,
             "voltage_12": float,
             "voltage_5": float,
-            "sht_temp": float,
-            "sht_humidity": float,
-            "lux_1": float,
-            "lux_2": float,
-            "lux_3": float,
-            "lux_4": float,
-            "lux_5": float,
-            "lux_6": float,
-            "lux_7": float,
+            "drill_temp": float,
+            "drill_humidity": float,
         }
     )
 
@@ -440,12 +438,46 @@ class BioControlData(WebsocketData):
             "fan_id": int,
             "fan_duration": int,
             "servo_id": int,
-            "servo_position": int,
-            "lss_direction": int,
+            "servo_state": bool,
+            "bio_arm": int,
             "laser": int,
-            "drill_duty": float,
+            "drill": int,
+            "drill_arm": int,
             "vibration_motor": int,
-            "drill_shake": int,
+        }
+    )
+
+
+class AnchorRelayData(WebsocketData):
+    """
+    Anchor control data type.
+    """
+
+    msg_type = "/anchor/relay"
+    ros_type = String
+    spec = SpecField.build_spec_dict({"data": str})
+
+
+class PtzControlData(WebsocketData):
+    """
+    PTZ control data type.
+    """
+
+    msg_type = "/ptz/control"
+    ros_type = msg.PtzControl
+    spec = SpecField.build_spec_dict(
+        {
+            "control_mode": int,
+            "turn_yaw": int,
+            "turn_pitch": int,
+            "yaw": float,
+            "pitch": float,
+            "axis_id": int,
+            "angle": float,
+            "zoom_level": float,
+            "stream_type": int,
+            "stream_freq": int,
+            "reset": bool,
         }
     )
 
@@ -458,7 +490,9 @@ types: Set[WebsocketData] = {
     AutoFeedbackData,
     CoreFeedbackData,
     DigitFeedbackData,
-    FaerieFeedbackData,
+    BioFeedbackData,
     SocketFeedbackData,
     BioControlData,
+    AnchorRelayData,
+    PtzControlData,
 }
