@@ -17,8 +17,7 @@ from util import websocket_types
 # ros things
 import rclpy
 from rclpy.executors import MultiThreadedExecutor
-from submodules import Submodule, Core, Arm, Auto, Bio, Antenna, Anchor
-import time
+from submodules import Submodule, Core, Arm, Auto, Bio, Antenna, Anchor, Ptz
 
 LOG = logging.getLogger(__name__)
 
@@ -76,6 +75,7 @@ async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
         websocket_data: Optional[websocket_types.WebsocketData] = None
         try:
             json_data = msg.json()
+            LOG.debug(f"websocket message from {request.remote} with data: {json_data}")
             data: dict = json_data["data"]
             msg_type: str = json_data["type"]
             msg_timestamp: int = json_data["timestamp"]
@@ -95,7 +95,9 @@ async def handle_controller(request: web.BaseRequest) -> web.WebSocketResponse:
             continue
 
         if websocket_data is None:
-            LOG.error(f"Websocket message from {request.remote} with empty data")
+            LOG.error(
+                f"Websocket message from {request.remote} with invalid type {msg_type}"
+            )
             continue
 
         # send the data to all submodules, they will handle it if they can
@@ -118,7 +120,7 @@ def main():
     LOG.info("Initializing ROS")
     rclpy.init()
     executor = MultiThreadedExecutor()
-    for node in [Core, Arm, Auto, Bio, Anchor]:
+    for node in [Core, Arm, Auto, Bio, Anchor, Ptz]:
         submodule = node(rclpy.create_node(f"bs_{node.name}"), ws_connections)
         submodules.append(submodule)
         executor.add_node(submodule.node)

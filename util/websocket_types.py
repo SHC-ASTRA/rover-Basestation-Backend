@@ -458,6 +458,30 @@ class AnchorRelayData(WebsocketData):
     spec = SpecField.build_spec_dict({"data": str})
 
 
+class PtzControlData(WebsocketData):
+    """
+    PTZ control data type.
+    """
+
+    msg_type = "/ptz/control"
+    ros_type = msg.PtzControl
+    spec = SpecField.build_spec_dict(
+        {
+            "control_mode": int,
+            "turn_yaw": int,
+            "turn_pitch": int,
+            "yaw": float,
+            "pitch": float,
+            "axis_id": int,
+            "angle": float,
+            "zoom_level": float,
+            "stream_type": int,
+            "stream_freq": int,
+            "reset": bool,
+        }
+    )
+
+
 types: Set[WebsocketData] = {
     ArmIKData,
     ArmManualData,
@@ -470,4 +494,5 @@ types: Set[WebsocketData] = {
     SocketFeedbackData,
     BioControlData,
     AnchorRelayData,
+    PtzControlData,
 }
