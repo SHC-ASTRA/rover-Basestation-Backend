@@ -482,6 +482,12 @@ class PtzControlData(WebsocketData):
     )
 
 
+class AntennaResetData(WebsocketData):
+    msg_type = "reset_antenna"
+    ros_type = None
+    spec = set()
+
+
 types: Set[WebsocketData] = {
     ArmIKData,
     ArmManualData,
@@ -495,4 +501,5 @@ types: Set[WebsocketData] = {
     BioControlData,
     AnchorRelayData,
     PtzControlData,
+    AntennaResetData,
 }
