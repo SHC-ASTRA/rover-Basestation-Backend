@@ -38,6 +38,7 @@ class Antenna(Submodule):
                     await self.send_udp_message("reset")
                     self.reset = False
                 elif last_sat:
+                    return
                     await self.send_udp_message(last_sat)
                 await sleep(1)
             except Exception as e:

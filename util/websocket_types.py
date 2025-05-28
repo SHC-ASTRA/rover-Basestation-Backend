@@ -341,6 +341,7 @@ class CoreFeedbackData(WebsocketData):
             "gps_lat": float,
             "gps_long": float,
             "gps_sats": int,
+            "gps_alt": float,
             "bno_gyro": Vector3Data,
             "bno_accel": Vector3Data,
             "orientation": float,
@@ -434,7 +435,7 @@ class BioControlData(WebsocketData):
     spec = SpecField.build_spec_dict(
         {
             "pump_id": int,
-            "pump_amount": int,
+            "pump_amount": float,
             "fan_id": int,
             "fan_duration": int,
             "servo_id": int,
