@@ -13,6 +13,26 @@ This script generates random ROS2 messages and publishes them to a ROS2 topic.
 """
 
 
+class BrokenBioNode(Node):
+    def __init__(self):
+        super().__init__("test_publisher")
+        self.publisher_ = self.create_publisher(msg.BioFeedback, "/bio/feedback", 10)
+        timer_period = 1.0  # seconds
+        self.timer = self.create_timer(timer_period, self.timer_callback)
+
+    def timer_callback(self):
+        to_send = generate_cumulative_data(
+            websocket_types.BioFeedbackData.from_ros(msg.BioFeedback()),
+            (0, 1),
+            (0, 255),
+        )
+        # simulate a broken node by setting the sht data to NaN
+        to_send.data["drill_temp"] = float("nan")
+        to_send.data["drill_humidity"] = float("nan")
+        self.publisher_.publish(to_send.to_ros())
+        self.get_logger().info('Publishing: "%s"' % to_send.data)
+
+
 class CoreNode(Node):
     def __init__(self):
         super().__init__("test_publisher")
@@ -98,6 +118,7 @@ class SocketNode(Node):
 
 
 class NodeEnum(Enum):
+    brokenbio = BrokenBioNode
     core = CoreNode
     auto = AutoNode
     bio = BioNode

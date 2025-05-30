@@ -137,8 +137,14 @@ class WebsocketData(ABC, Generic[T]):
                 out[entry.field] = self.data[entry.field].to_dict()
                 continue
 
-            # otherwise we can just copy it over. this effectively deep copies
-            out[entry.field] = self.data[entry.field]
+            # we need to check if it's nan, in which case we set it to dummy data
+            if isinstance(self.data[entry.field], float) and (
+                self.data[entry.field] != self.data[entry.field]
+            ):
+                out[entry.field] = -69420.0
+            else:
+                # otherwise we can just copy it over. this effectively deep copies
+                out[entry.field] = self.data[entry.field]
 
         return out
 
