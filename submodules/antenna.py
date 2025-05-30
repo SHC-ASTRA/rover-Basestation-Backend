@@ -1,10 +1,20 @@
 from submodules import Submodule
-
 import logging
 from util.aiohttp_utils import WSSender
 from asyncio import sleep, get_running_loop, DatagramProtocol
 from typing import Callable
 from util import websocket_types
+from json import loads
+
+
+class TrackingAntennaProtocol(DatagramProtocol):
+    def __init__(self, ws_sender: WSSender):
+        self.ws_sender = ws_sender
+
+    def datagram_received(self, data, addr):
+        msg = websocket_types.AntennaFeedbackData.from_dict(loads(data.decode()))
+        logging.info(f"Received UDP from {addr}: {msg.data}")
+        self.ws_sender.send(msg)
 
 
 class Antenna(Submodule):
@@ -22,6 +32,7 @@ class Antenna(Submodule):
     ):
         super().__init__(None, ws_sender)
         self.data_provider = data_provider
+        self.udp_transport = None  # Will hold persistent transport for receiving
 
     def handle_ws_msg(self, ws_data):
         if isinstance(ws_data, websocket_types.AntennaResetData):
@@ -33,12 +44,15 @@ class Antenna(Submodule):
         self.LOG.info("Starting UDP message sender task")
         while True:
             try:
-                last_sat = self.data_provider()
-                if self.overwrite_msg != None:
-                    await self.send_udp_message(self.overwrite_msg)
-                    self.overwrite_msg = None
-                elif last_sat:
-                    await self.send_udp_message(last_sat)
+                to_send = self.data_provider()
+                if self.overwrite_msg is not None:
+                    if self.overwrite_msg.startswith("!"):
+                        to_send = self.overwrite_msg[1:]
+                    else:
+                        to_send = self.overwrite_msg
+                        self.overwrite_msg = None
+                if to_send:
+                    await self.send_udp_message(to_send)
                 await sleep(1)
             except Exception as e:
                 self.LOG.error(f"Error in UDP message sender task: {e}", exc_info=True)
@@ -46,9 +60,20 @@ class Antenna(Submodule):
     async def send_udp_message(self, message, host="192.168.1.4", port=42069):
         loop = get_running_loop()
         transport, _ = await loop.create_datagram_endpoint(
-            lambda: DatagramProtocol(), remote_addr=(host, port)
+            lambda: TrackingAntennaProtocol(
+                self.ws_sender
+            ),  # No need to receive in this one-time send
+            remote_addr=(host, port),
         )
         try:
             transport.sendto(message.encode())
         finally:
             transport.close()
+
+    async def listen_for_udp_messages(self, local_host="0.0.0.0", local_port=42069):
+        self.LOG.info(f"Listening for UDP on {local_host}:{local_port}")
+        loop = get_running_loop()
+        self.udp_transport, _ = await loop.create_datagram_endpoint(
+            lambda: TrackingAntennaProtocol(self.ws_sender),
+            local_addr=(local_host, local_port),
+        )

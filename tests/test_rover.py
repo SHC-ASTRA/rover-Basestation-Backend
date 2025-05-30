@@ -44,8 +44,8 @@ class CoreNode(Node):
         to_send = generate_cumulative_data(
             websocket_types.CoreFeedbackData.from_ros(msg.CoreFeedback())
         )
-        to_send.data["gps_lat"] = random.uniform(38, 39)
-        to_send.data["gps_long"] = random.uniform(-110, -111)
+        to_send.data["gps_lat"] = 38.0
+        to_send.data["gps_long"] = 110.0
         to_send.data["orientation"] = random.uniform(-180, 180)
 
         self.publisher_.publish(to_send.to_ros())

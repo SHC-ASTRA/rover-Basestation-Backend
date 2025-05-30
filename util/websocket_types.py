@@ -515,6 +515,20 @@ class AntennaResetData(WebsocketData):
     )
 
 
+class AntennaFeedbackData(WebsocketData):
+    msg_type = "antenna/feedback"
+    ros_type = None
+    spec = SpecField.build_spec_dict(
+        {
+            "lat": float,
+            "lon": float,
+            "sat": int,
+            "heading": float,
+            "calib": int,
+        }
+    )
+
+
 types: Set[WebsocketData] = {
     ArmIKData,
     ArmManualData,
@@ -529,4 +543,5 @@ types: Set[WebsocketData] = {
     AnchorRelayData,
     PtzControlData,
     AntennaResetData,
+    AntennaFeedbackData,
 }

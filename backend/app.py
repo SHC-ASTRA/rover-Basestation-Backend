@@ -145,6 +145,7 @@ def main():
             start_webserver(),
             ws_connections.loop(),
             antenna.send_udp_message_task(),
+            antenna.listen_for_udp_messages(),
         ],
         return_when=asyncio.FIRST_EXCEPTION,
     )
