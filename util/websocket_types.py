@@ -484,9 +484,13 @@ class PtzControlData(WebsocketData):
 
 
 class AntennaResetData(WebsocketData):
-    msg_type = "reset_antenna"
+    msg_type = "antenna"
     ros_type = None
-    spec = set()
+    spec = SpecField.build_spec_dict(
+        {
+            "message": str,
+        }
+    )
 
 
 types: Set[WebsocketData] = {

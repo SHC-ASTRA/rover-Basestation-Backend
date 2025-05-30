@@ -15,7 +15,7 @@ class Antenna(Submodule):
     LOG = logging.getLogger(__name__)
     name = "antenna"
     data_provider: Callable[[None], str | None] = None
-    reset = False
+    overwrite_msg: str | None = None
 
     def __init__(
         self, ws_sender: WSSender, data_provider: Callable[[None], str | None]
@@ -25,7 +25,7 @@ class Antenna(Submodule):
 
     def handle_ws_msg(self, ws_data):
         if isinstance(ws_data, websocket_types.AntennaResetData):
-            self.reset = True
+            self.overwrite_msg = ws_data.data["message"]
             return True
         return False
 
@@ -34,9 +34,9 @@ class Antenna(Submodule):
         while True:
             try:
                 last_sat = self.data_provider()
-                if self.reset:
-                    await self.send_udp_message("reset")
-                    self.reset = False
+                if self.overwrite_msg != None:
+                    await self.send_udp_message(self.overwrite_msg)
+                    self.overwrite_msg = None
                 elif last_sat:
                     await self.send_udp_message(last_sat)
                 await sleep(1)
