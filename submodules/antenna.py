@@ -13,7 +13,7 @@ class TrackingAntennaProtocol(DatagramProtocol):
 
     def datagram_received(self, data, addr):
         msg = websocket_types.AntennaFeedbackData.from_dict(loads(data.decode()))
-        logging.info(f"Received UDP from {addr}: {msg.data}")
+        logging.info(f"Received UDP from {addr}: {msg.to_json()}")
         self.ws_sender.send(msg)
 
 

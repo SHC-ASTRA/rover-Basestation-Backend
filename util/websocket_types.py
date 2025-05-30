@@ -359,22 +359,6 @@ class CoreFeedbackData(WebsocketData):
             "voltage_12": float,
             "voltage_5": float,
             "voltage_3": float,
-            # REV motor feedback - front left
-            "fl_temp": float,
-            "fl_voltage": float,
-            "fl_current": float,
-            # REV motor feedback - back left
-            "bl_temp": float,
-            "bl_voltage": float,
-            "bl_current": float,
-            # REV motor feedback - front right
-            "fr_temp": float,
-            "fr_voltage": float,
-            "fr_current": float,
-            # REV motor feedback - back right
-            "br_temp": float,
-            "br_voltage": float,
-            "br_current": float,
         }
     )
 
