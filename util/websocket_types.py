@@ -250,6 +250,7 @@ class ArmManualData(WebsocketData):
             "axis1": int,
             "axis2": int,
             "axis3": int,
+            "brake": bool,
             "effector_roll": int,
             "effector_yaw": int,
             "gripper": int,
