@@ -344,21 +344,43 @@ class CoreFeedbackData(WebsocketData):
     ros_type = msg.CoreFeedback
     spec = SpecField.build_spec_dict(
         {
+            # GPS Data
             "gps_lat": float,
             "gps_long": float,
             "gps_sats": int,
             "gps_alt": float,
+            # BNO055 Sensor Data
             "bno_gyro": Vector3Data,
             "bno_accel": Vector3Data,
+            # Rover Orientation
             "orientation": float,
             "imu_calib": int,
+            # BMP Sensor Data
             "bmp_temp": float,
             "bmp_alt": float,
             "bmp_pres": float,
+            # Voltage Readings
             "bat_voltage": float,
             "voltage_12": float,
             "voltage_5": float,
             "voltage_3": float,
+            # REV Motor Feedback
+            ## Front Left (1)
+            "fl_temp": float,
+            "fl_voltage": float,
+            "fl_current": float,
+            ## Back Left (2)
+            "bl_temp": float,
+            "bl_voltage": float,
+            "bl_current": float,
+            ## Front Right (3)
+            "fr_temp": float,
+            "fr_voltage": float,
+            "fr_current": float,
+            ## Back Right (4)
+            "br_temp": float,
+            "br_voltage": float,
+            "br_current": float,
         }
     )
 
